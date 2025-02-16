@@ -1,0 +1,32 @@
+{
+	"tasks": {
+		"dev": "deno run -A --unstable-kv --watch src/index.ts",
+		"test": "deno test -A --unstable-kv"
+	},
+	"compilerOptions": {
+		"strict": true,
+		"strictNullChecks": true,
+		"noUncheckedIndexedAccess": true,
+		"lib": ["ESNext", "DOM", "DOM.Iterable", "deno.ns", "deno.unstable"]
+	},
+	"nodeModulesDir": "auto",
+	"imports": {
+		"fp-try": "jsr:@2or3godzillas/fp-try",
+		"hono": "npm:hono",
+		"zod": "npm:zod",
+		"axios": "npm:axios"
+	},
+	"fmt": {
+		"lineWidth": 120,
+		"semiColons": true,
+		"useTabs": true
+	},
+	"lint": {
+		"rules": {
+			"exclude": [
+				"no-explicit-any",
+				"no-unused-vars"
+			]
+		}
+	}
+}

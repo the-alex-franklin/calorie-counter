@@ -1,0 +1,4 @@
+.env*
+node_modules/
+calorie-counter*
+# ☝️ this is the deno kv stores
