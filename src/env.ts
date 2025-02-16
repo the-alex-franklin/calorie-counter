@@ -7,4 +7,5 @@ export const env = z.object({
 	JWT_SECRET: z.string(),
 	REFRESH_SECRET: z.string(),
 	OPENAI_APIKEY: z.string(),
+	COOKIE_SECRET: z.string(),
 }).parse(Deno.env.toObject());

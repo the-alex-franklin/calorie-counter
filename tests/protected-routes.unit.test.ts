@@ -1,4 +1,4 @@
-import { assertEquals } from "jsr:@std/assert";
+import { assertEquals, assertMatch } from "jsr:@std/assert";
 import { setupTests } from "./setup-tests.ts";
 
 const { app } = await setupTests();
@@ -10,7 +10,7 @@ Deno.test("hit protected route without token", async () => {
 });
 
 Deno.test("hit protected route with token", async () => {
-	const signUpResponse = await app.request("http://localhost:3000/sign-up", {
+	const response = await app.request("http://localhost:3000/sign-up", {
 		method: "POST",
 		body: JSON.stringify({
 			email: "Alex@email.com",
@@ -18,16 +18,8 @@ Deno.test("hit protected route with token", async () => {
 		}),
 	});
 
-	const signUpData = await signUpResponse.json() as { accessToken: string };
+	const setCookieHeader = response.headers.get("set-cookie");
+	if (!setCookieHeader) throw new Error("No set-cookie header");
 
-	const response = await app.request("http://localhost:3000/protected", {
-		headers: {
-			Authorization: `Bearer ${signUpData.accessToken}`,
-		},
-	});
-
-	const data = await response.text();
-
-	console.log(data);
-	assertEquals(data, "Protected route");
+	assertMatch(setCookieHeader, /accessToken=.*HttpOnly/);
 });

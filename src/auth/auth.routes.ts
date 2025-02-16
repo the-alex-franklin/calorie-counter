@@ -1,15 +1,17 @@
 import { Hono } from "hono";
 import { z } from "zod";
+import { env } from "../env.ts";
 import { dbProvider } from "../db/db.ts";
 import { generateAccessToken, generateRefreshToken } from "./jwt.ts";
 // @deno-types="npm:@types/bcryptjs"
 import bcrypt from "npm:bcryptjs";
+import { setSignedCookie } from "hono/cookie";
 
 export function authRoutes(db: dbProvider) {
 	const router = new Hono();
 
 	const signUpSchema = z.object({
-		email: z.string(),
+		email: z.string().email(),
 		password: z.string(),
 	});
 	const signInSchema = signUpSchema;
@@ -23,7 +25,21 @@ export function authRoutes(db: dbProvider) {
 		const accessToken = generateAccessToken(user);
 		const refreshToken = generateRefreshToken(user);
 
-		return c.json({ accessToken, refreshToken });
+		await setSignedCookie(c, "accessToken", accessToken, env.COOKIE_SECRET, {
+			httpOnly: true,
+			secure: true,
+			sameSite: "None",
+			maxAge: 60 * 15,
+		});
+
+		await setSignedCookie(c, "refreshToken", refreshToken, env.COOKIE_SECRET, {
+			httpOnly: true,
+			secure: true,
+			sameSite: "None",
+			maxAge: 60 * 60 * 24 * 7,
+		});
+
+		return c.json({ message: "Signed up and logged in" });
 	});
 
 	router.post("/sign-in", async (c) => {
@@ -39,7 +55,21 @@ export function authRoutes(db: dbProvider) {
 		const accessToken = generateAccessToken(user);
 		const refreshToken = generateRefreshToken(user);
 
-		return c.json({ accessToken, refreshToken });
+		await setSignedCookie(c, "accessToken", accessToken, env.COOKIE_SECRET, {
+			httpOnly: true,
+			secure: true,
+			sameSite: "None",
+			maxAge: 60 * 15,
+		});
+
+		await setSignedCookie(c, "refreshToken", refreshToken, env.COOKIE_SECRET, {
+			httpOnly: true,
+			secure: true,
+			sameSite: "None",
+			maxAge: 60 * 60 * 24 * 7,
+		});
+
+		return c.json({ message: "Logged in" });
 	});
 
 	router.post("/forgot-password", async (c) => {
@@ -49,8 +79,6 @@ export function authRoutes(db: dbProvider) {
 		const user = await db.getUser(email);
 		if (!user) return c.json({ status: "error", message: "User not found" });
 
-		// const token = generateAccessToken(user);
-		// Send token via email
 		return c.json({ status: "ok" });
 	});
 

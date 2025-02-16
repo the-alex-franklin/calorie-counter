@@ -15,8 +15,7 @@ Deno.test("sign-up", async () => {
 	const data = await response.json();
 
 	z.object({
-		accessToken: z.string().regex(/^eyJ/),
-		refreshToken: z.string().regex(/^eyJ/),
+		message: z.string(),
 	}).parse(data);
 });
 
@@ -32,7 +31,6 @@ Deno.test("sign-in", async () => {
 	const data = await response.json();
 
 	z.object({
-		accessToken: z.string().regex(/^eyJ/),
-		refreshToken: z.string().regex(/^eyJ/),
+		message: z.string(),
 	}).parse(data);
 });

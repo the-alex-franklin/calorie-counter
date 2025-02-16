@@ -1,31 +1,28 @@
 import jwt from "npm:jwt-simple";
 import { env } from "../env.ts";
+import { z } from "zod";
 
 const ACCESS_TOKEN_EXPIRY = 15 * 60;
 const REFRESH_TOKEN_EXPIRY = 7 * 24 * 60 * 60;
 
-type JWTPayload = {
-	id: string; // User ID
-	email: string; // User email
-	role: string; // User role (e.g., 'admin', 'user')
-	password?: string; // Optional user password
-	permissions?: string[]; // Optional list of user permissions
-	iat: number; // Issued At (optional, added automatically)
-	exp: number; // Expiration (optional, added automatically)
-};
+const jwtSchema = z.object({
+	id: z.string(),
+	iat: z.number(),
+	exp: z.number(),
+});
 
-export const generateAccessToken = (payload: Omit<JWTPayload, "iat" | "exp">): string => {
-	delete payload.password;
+type JWTPayload = z.infer<typeof jwtSchema>;
+
+export const generateAccessToken = ({ id }: { id: string }): string => {
 	const iat = Math.floor(Date.now() / 1000);
 	const exp = iat + ACCESS_TOKEN_EXPIRY;
-	return jwt.encode({ ...payload, iat, exp }, env.JWT_SECRET);
+	return jwt.encode({ id, iat, exp }, env.JWT_SECRET);
 };
 
-export const generateRefreshToken = (payload: Omit<JWTPayload, "iat" | "exp">): string => {
-	delete payload.password;
+export const generateRefreshToken = ({ id }: { id: string }): string => {
 	const iat = Math.floor(Date.now() / 1000);
 	const exp = iat + REFRESH_TOKEN_EXPIRY;
-	return jwt.encode({ ...payload, iat, exp }, env.REFRESH_SECRET);
+	return jwt.encode({ id, iat, exp }, env.REFRESH_SECRET);
 };
 
 export const decodeAccessToken = (token: string): JWTPayload => {
