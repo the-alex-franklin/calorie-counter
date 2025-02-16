@@ -11,7 +11,6 @@ export class App {
 
 	constructor({ kv }: {
 		kv: Deno.Kv;
-		openai_apikey?: string;
 	}) {
 		this.app = new Hono();
 		this.app.use(cors({
@@ -28,13 +27,10 @@ export class App {
 	}
 }
 
-const kv = await Deno.openKv("calorie-counter");
-const { app } = new App({
-	kv,
-	openai_apikey: env.OPENAI_APIKEY,
-});
-
 if (import.meta.main) {
+	const kv = await Deno.openKv("calorie-counter");
+	const { app } = new App({ kv });
+
 	Deno.serve({
 		port: 3000,
 		handler: app.fetch,
