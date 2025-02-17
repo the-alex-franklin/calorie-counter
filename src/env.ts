@@ -7,5 +7,4 @@ export const env = z.object({
 	JWT_SECRET: z.string(),
 	REFRESH_SECRET: z.string(),
 	COOKIE_SECRET: z.string(),
-	MONGO_URI: z.string(),
 }).parse(Deno.env.toObject());

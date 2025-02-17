@@ -1,6 +1,6 @@
 {
 	"tasks": {
-		"dev": "deno run -A --watch src/index.ts",
+		"dev": "deno run -A --watch src/app.ts",
 		"test": "deno test -A"
 	},
 	"compilerOptions": {
@@ -15,7 +15,8 @@
 		"hono": "npm:hono",
 		"zod": "npm:zod",
 		"axios": "npm:axios",
-		"mongoose": "npm:mongoose"
+		"mongodb": "npm:mongodb",
+		"bcryptjs": "npm:bcryptjs"
 	},
 	"fmt": {
 		"lineWidth": 120,

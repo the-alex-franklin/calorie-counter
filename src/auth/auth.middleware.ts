@@ -14,8 +14,10 @@ export type JWT_Payload = {
 };
 
 export const jwtAuthMiddleware: MiddlewareHandler<JWT_Payload> = async (c, next) => {
-	const accessToken = await getSignedCookie(c, env.COOKIE_SECRET, "accessToken");
-	if (!accessToken) return c.json({ message: "Unauthorized" }, 401);
+	const authHeader = c.req.header("Authorization");
+	if (!authHeader) throw new Error("Unauthorized");
+
+	const accessToken = authHeader.replace(/^Bearer /, "");
 
 	const payload = decodeAccessToken(accessToken);
 	c.set("jwtPayload", payload);

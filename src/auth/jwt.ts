@@ -1,7 +1,6 @@
 import jwt from "npm:jwt-simple";
 import { env } from "../env.ts";
 import { z } from "zod";
-import { Types } from "mongoose";
 
 const ACCESS_TOKEN_EXPIRY = 15 * 60;
 const REFRESH_TOKEN_EXPIRY = 7 * 24 * 60 * 60;

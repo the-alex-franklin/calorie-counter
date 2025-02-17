@@ -1,17 +1,13 @@
 import { Hono } from "hono";
 import { z } from "zod";
-import { env } from "../env.ts";
 import { generateAccessToken, generateRefreshToken } from "./jwt.ts";
-// @deno-types="npm:@types/bcryptjs"
-import bcrypt from "npm:bcryptjs";
-import { setSignedCookie } from "hono/cookie";
-import { userService } from "../db/services/UserService.ts";
+import { UserService } from "../db/UserService.ts";
 
-export function authRoutes() {
+export function authRoutes(userService: UserService) {
 	const router = new Hono();
 
 	const signUpSchema = z.object({
-		email: z.string().email(),
+		email: z.string().email().transform((email) => email.toLowerCase()),
 		password: z.string(),
 	});
 	const signInSchema = signUpSchema;
@@ -25,51 +21,19 @@ export function authRoutes() {
 		const accessToken = generateAccessToken(user);
 		const refreshToken = generateRefreshToken(user);
 
-		await setSignedCookie(c, "accessToken", accessToken, env.COOKIE_SECRET, {
-			httpOnly: true,
-			secure: true,
-			sameSite: "None",
-			maxAge: 60 * 15,
-		});
-
-		await setSignedCookie(c, "refreshToken", refreshToken, env.COOKIE_SECRET, {
-			httpOnly: true,
-			secure: true,
-			sameSite: "None",
-			maxAge: 60 * 60 * 24 * 7,
-		});
-
-		return c.json({ message: "Signed up and logged in" });
+		return c.json({ accessToken, refreshToken });
 	});
 
 	router.post("/sign-in", async (c) => {
 		const json = await c.req.json();
 		const { email, password } = signInSchema.parse(json);
 
-		const user = await userService.getUserByEmail(email);
-		if (!user) return c.json({ status: "error", message: "User not found" });
-
-		const isValid = await bcrypt.compare(password, user.password);
-		if (!isValid) return c.json({ status: "error", message: "Invalid password" });
+		const user = await userService.comparePassword({ email, password });
 
 		const accessToken = generateAccessToken(user);
 		const refreshToken = generateRefreshToken(user);
 
-		await setSignedCookie(c, "accessToken", accessToken, env.COOKIE_SECRET, {
-			httpOnly: true,
-			secure: true,
-			sameSite: "None",
-			maxAge: 60 * 15,
-		});
-
-		await setSignedCookie(c, "refreshToken", refreshToken, env.COOKIE_SECRET, {
-			httpOnly: true,
-			secure: true,
-			sameSite: "None",
-			maxAge: 60 * 60 * 24 * 7,
-		});
-
-		return c.json({ message: "Logged in" });
+		return c.json({ accessToken, refreshToken });
 	});
 
 	router.post("/forgot-password", async (c) => {
@@ -80,6 +44,19 @@ export function authRoutes() {
 		if (!user) return c.json({ status: "error", message: "User not found" });
 
 		return c.json({ status: "ok" });
+	});
+
+	router.post("/token-refresh", async (c) => {
+		const json = await c.req.json();
+		const { refreshToken } = z.object({ refreshToken: z.string() }).parse(json);
+
+		const user = await userService.getUserById(refreshToken);
+		if (!user) return c.json({ status: "error", message: "User not found" });
+
+		const accessToken = generateAccessToken(user);
+		const newRefreshToken = generateRefreshToken(user);
+
+		return c.json({ accessToken, refreshToken: newRefreshToken });
 	});
 
 	return router;
