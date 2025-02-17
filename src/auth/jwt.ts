@@ -1,6 +1,7 @@
 import jwt from "npm:jwt-simple";
 import { env } from "../env.ts";
 import { z } from "zod";
+import { Types } from "mongoose";
 
 const ACCESS_TOKEN_EXPIRY = 15 * 60;
 const REFRESH_TOKEN_EXPIRY = 7 * 24 * 60 * 60;
@@ -16,13 +17,13 @@ type JWTPayload = z.infer<typeof jwtSchema>;
 export const generateAccessToken = ({ id }: { id: string }): string => {
 	const iat = Math.floor(Date.now() / 1000);
 	const exp = iat + ACCESS_TOKEN_EXPIRY;
-	return jwt.encode({ id, iat, exp }, env.JWT_SECRET);
+	return jwt.encode({ id: id.toString(), iat, exp }, env.JWT_SECRET);
 };
 
 export const generateRefreshToken = ({ id }: { id: string }): string => {
 	const iat = Math.floor(Date.now() / 1000);
 	const exp = iat + REFRESH_TOKEN_EXPIRY;
-	return jwt.encode({ id, iat, exp }, env.REFRESH_SECRET);
+	return jwt.encode({ id: id.toString(), iat, exp }, env.REFRESH_SECRET);
 };
 
 export const decodeAccessToken = (token: string): JWTPayload => {

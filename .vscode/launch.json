@@ -11,7 +11,7 @@
 			"program": "${workspaceFolder}/src/index.ts",
 			"cwd": "${workspaceFolder}",
 			"env": {},
-			"runtimeExecutable": "deno",
+			"runtimeExecutable": "/Users/andyf/.deno/bin/deno",
 			"runtimeArgs": [
 				"run",
 				"--unstable-kv",

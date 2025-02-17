@@ -14,7 +14,8 @@
 		"fp-try": "jsr:@2or3godzillas/fp-try",
 		"hono": "npm:hono",
 		"zod": "npm:zod",
-		"axios": "npm:axios"
+		"axios": "npm:axios",
+		"mongoose": "npm:mongoose"
 	},
 	"fmt": {
 		"lineWidth": 120,

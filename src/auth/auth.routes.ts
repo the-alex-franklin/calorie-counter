@@ -1,13 +1,13 @@
 import { Hono } from "hono";
 import { z } from "zod";
 import { env } from "../env.ts";
-import { dbProvider } from "../db/db.ts";
 import { generateAccessToken, generateRefreshToken } from "./jwt.ts";
 // @deno-types="npm:@types/bcryptjs"
 import bcrypt from "npm:bcryptjs";
 import { setSignedCookie } from "hono/cookie";
+import { userModel } from "../db/UserModel.ts";
 
-export function authRoutes(db: dbProvider) {
+export function authRoutes() {
 	const router = new Hono();
 
 	const signUpSchema = z.object({
@@ -20,7 +20,7 @@ export function authRoutes(db: dbProvider) {
 		const json = await c.req.json();
 		const { email, password } = signUpSchema.parse(json);
 
-		const user = await db.createUser({ email, password });
+		const user = await userModel.createUser({ email, password });
 
 		const accessToken = generateAccessToken(user);
 		const refreshToken = generateRefreshToken(user);
@@ -46,7 +46,7 @@ export function authRoutes(db: dbProvider) {
 		const json = await c.req.json();
 		const { email, password } = signInSchema.parse(json);
 
-		const user = await db.getUser(email);
+		const user = await userModel.getUserByEmail(email);
 		if (!user) return c.json({ status: "error", message: "User not found" });
 
 		const isValid = await bcrypt.compare(password, user.password);
@@ -76,7 +76,7 @@ export function authRoutes(db: dbProvider) {
 		const json = await c.req.json();
 		const { email } = z.object({ email: z.string() }).parse(json);
 
-		const user = await db.getUser(email);
+		const user = await userModel.getUserByEmail(email);
 		if (!user) return c.json({ status: "error", message: "User not found" });
 
 		return c.json({ status: "ok" });
