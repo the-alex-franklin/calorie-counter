@@ -1,6 +1,7 @@
 import jwt from "npm:jwt-simple";
 import { env } from "../env.ts";
 import { z } from "zod";
+import { PlatformError } from "../errors/platform.error.ts";
 
 const ACCESS_TOKEN_EXPIRY = 15 * 60;
 const REFRESH_TOKEN_EXPIRY = 7 * 24 * 60 * 60;
@@ -27,12 +28,12 @@ export const generateRefreshToken = ({ id }: { id: string }): string => {
 
 export const decodeAccessToken = (token: string): JWTPayload => {
 	const decoded: JWTPayload = jwt.decode(token, env.JWT_SECRET);
-	if (decoded.exp < Math.floor(Date.now() / 1000)) throw new Error("Token expired");
+	if (decoded.exp < Math.floor(Date.now() / 1000)) throw new PlatformError("Unauthorized", 401);
 	return decoded;
 };
 
 export const decodeRefreshToken = (token: string): JWTPayload => {
 	const decoded: JWTPayload = jwt.decode(token, env.REFRESH_SECRET);
-	if (decoded.exp < Math.floor(Date.now() / 1000)) throw new Error("Refresh token expired");
+	if (decoded.exp < Math.floor(Date.now() / 1000)) throw new PlatformError("Unauthorized", 401);
 	return decoded;
 };

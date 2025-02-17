@@ -1,10 +1,10 @@
 import { Hono } from "hono";
-import { env } from "./env.ts";
 import { authRoutes } from "./auth/auth.routes.ts";
 import { type JWT_Payload, jwtAuthMiddleware } from "./auth/auth.middleware.ts";
 import { cors } from "hono/cors";
 import { UserService } from "./db/UserService.ts";
 import { type Db, MongoClient } from "mongodb";
+import { PlatformError } from "./errors/platform.error.ts";
 
 export class App {
 	app: Hono | Hono<JWT_Payload>;
@@ -12,7 +12,11 @@ export class App {
 
 	constructor({ db }: { db: Db }) {
 		this.app = new Hono();
-		this.app.onError((err, c) => c.json({ error: err.message }, 500));
+		this.app.onError((err, c) => {
+			if (err instanceof PlatformError) return c.json({ error: err.message }, err.code);
+
+			return c.json({ error: err.message || "Internal Server Error" }, 500);
+		});
 
 		this.userService = new UserService(db);
 
@@ -22,7 +26,7 @@ export class App {
 		this.app.route("/", authRoutes(this.userService));
 
 		this.app = this.app.use(jwtAuthMiddleware);
-		this.app.get("/protected", (c) => c.body("Protected"));
+		this.app.get("/protected", (c) => c.json({ message: "Protected" }));
 		this.app.get("/user", async (c) => {
 			const { id } = c.get("jwtPayload");
 			const user = await this.userService.getUserById(id);

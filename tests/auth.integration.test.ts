@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { setupTests } from "./setupTests.ts";
 
-Deno.test("sign-up/sign-in", async (t) => {
+Deno.test("auth", async (t) => {
 	const { app, closeConnection } = await setupTests();
 
 	let accessToken: string;
@@ -24,6 +24,7 @@ Deno.test("sign-up/sign-in", async (t) => {
 		});
 
 		const data = await response.json();
+		console.log({ data });
 
 		z.object({
 			accessToken: z.string().regex(/^eyJ/),
@@ -57,9 +58,11 @@ Deno.test("sign-up/sign-in", async (t) => {
 			},
 		});
 
-		const data = await response.text();
+		const data = await response.json();
 
-		z.literal("Protected").parse(data);
+		z.object({
+			message: z.literal("Protected"),
+		}).parse(data);
 	});
 
 	await closeConnection();

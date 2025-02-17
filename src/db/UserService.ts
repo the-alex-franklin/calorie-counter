@@ -1,6 +1,7 @@
 import { Collection, Db, ObjectId } from "mongodb";
 import bcrypt from "bcryptjs";
 import { z } from "zod";
+import { PlatformError } from "../errors/platform.error.ts";
 
 const userWriteSchema = z.object({
 	email: z.string().email(),
@@ -8,10 +9,10 @@ const userWriteSchema = z.object({
 });
 
 const userReadSchema = z.object({
-	id: z.string(),
+	_id: z.instanceof(ObjectId),
 	email: z.string().email(),
 	role: z.enum(["admin", "user"]),
-});
+}).transform(({ _id, ...rest }) => ({ ...rest, id: _id.toString() }));
 
 type UserWrite = z.infer<typeof userWriteSchema>;
 type UserRead = z.infer<typeof userReadSchema>;
@@ -32,31 +33,27 @@ export class UserService {
 
 	async comparePassword({ email, password }: UserWrite): Promise<UserRead> {
 		const user = await this.collection.findOne({ email });
-		if (!user) throw new Error("Unauthorized");
+		if (!user) throw new PlatformError("Unauthorized", 401);
 
 		const isPasswordValid = await bcrypt.compare(password, user.password);
-		if (!isPasswordValid) throw new Error("Unauthorized");
+		if (!isPasswordValid) throw new PlatformError("Unauthorized", 401);
 
-		return userReadSchema.parse({ id: user._id.toString(), email: user.email, role: user.role });
+		return userReadSchema.parse(user);
 	}
 
 	async getUserById(id: string): Promise<UserRead> {
 		const user = await this.collection.findOne({ _id: new ObjectId(id) });
-		if (!user) throw new Error("User not found");
-
-		return userReadSchema.parse({ id: user._id.toString(), email: user.email, role: user.role });
+		return userReadSchema.parse(user);
 	}
 
 	async getUserByEmail(email: string): Promise<UserRead> {
 		const user = await this.collection.findOne({ email });
-		if (!user) throw new Error("User not found");
-
-		return userReadSchema.parse({ id: user._id.toString(), email: user.email, role: user.role });
+		return userReadSchema.parse(user);
 	}
 
 	async createUser({ email, password }: UserWrite): Promise<UserRead> {
 		const existingUser = await this.collection.findOne({ email });
-		if (existingUser) throw new Error("User already exists");
+		if (existingUser) throw new PlatformError("Bad Request", 400);
 
 		const hashedPassword = await bcrypt.hash(password, 10);
 		const newUser = {
@@ -67,6 +64,6 @@ export class UserService {
 
 		// @ts-ignore -
 		const result = await this.collection.insertOne(newUser);
-		return userReadSchema.parse({ id: result.insertedId.toString(), email, role: "user" });
+		return userReadSchema.parse({ _id: result.insertedId, email, role: "user" });
 	}
 }
