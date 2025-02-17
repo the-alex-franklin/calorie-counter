@@ -14,7 +14,6 @@
 			"runtimeExecutable": "/Users/andyf/.deno/bin/deno",
 			"runtimeArgs": [
 				"run",
-				"--unstable-kv",
 				"--inspect-wait",
 				"--allow-all"
 			],

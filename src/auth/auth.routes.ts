@@ -5,7 +5,7 @@ import { generateAccessToken, generateRefreshToken } from "./jwt.ts";
 // @deno-types="npm:@types/bcryptjs"
 import bcrypt from "npm:bcryptjs";
 import { setSignedCookie } from "hono/cookie";
-import { userModel } from "../db/UserModel.ts";
+import { userService } from "../db/services/UserService.ts";
 
 export function authRoutes() {
 	const router = new Hono();
@@ -20,7 +20,7 @@ export function authRoutes() {
 		const json = await c.req.json();
 		const { email, password } = signUpSchema.parse(json);
 
-		const user = await userModel.createUser({ email, password });
+		const user = await userService.createUser({ email, password });
 
 		const accessToken = generateAccessToken(user);
 		const refreshToken = generateRefreshToken(user);
@@ -46,7 +46,7 @@ export function authRoutes() {
 		const json = await c.req.json();
 		const { email, password } = signInSchema.parse(json);
 
-		const user = await userModel.getUserByEmail(email);
+		const user = await userService.getUserByEmail(email);
 		if (!user) return c.json({ status: "error", message: "User not found" });
 
 		const isValid = await bcrypt.compare(password, user.password);
@@ -76,7 +76,7 @@ export function authRoutes() {
 		const json = await c.req.json();
 		const { email } = z.object({ email: z.string() }).parse(json);
 
-		const user = await userModel.getUserByEmail(email);
+		const user = await userService.getUserByEmail(email);
 		if (!user) return c.json({ status: "error", message: "User not found" });
 
 		return c.json({ status: "ok" });

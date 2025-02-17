@@ -1,7 +1,7 @@
 import { z } from "zod";
 import bcrypt from "npm:bcryptjs";
-import mongoose, { Schema, Types } from "npm:mongoose";
-import { BaseDocument, BaseModel } from "./BaseModel.ts";
+import { Schema, Types } from "npm:mongoose";
+import { BaseDocument, BaseModel } from "../BaseModel.ts";
 
 // ✅ Schema for writing (creating) users (no `id` yet)
 const userWriteSchema = z.object({
@@ -9,21 +9,13 @@ const userWriteSchema = z.object({
 	password: z.string().min(6),
 });
 
-// ✅ Zod validator for MongoDB ObjectId (ensures it's always a valid ObjectId)
-const objectIdSchema = z.custom<mongoose.Types.ObjectId>(
-	(val) => mongoose.isValidObjectId(val),
-	{ message: "Invalid ObjectId" },
-);
-
 // ✅ Schema for reading (retrieved from DB) users (`id` included)
 const userReadSchema = userWriteSchema.extend({
-	_id: objectIdSchema,
+	_id: z.instanceof(Types.ObjectId),
 	role: z.enum(["admin", "user"]),
 }).transform((data) => {
-	const transformed_data = { ...data, id: data._id.toString() };
-	// @ts-ignore -
-	delete transformed_data._id;
-	return transformed_data;
+	const transformed_data = { ...data, id: data._id.toString(), _id: undefined };
+	return transformed_data as Omit<typeof transformed_data, "_id">;
 });
 
 export type UserWrite = z.infer<typeof userWriteSchema>; // Type for creating users
@@ -44,13 +36,14 @@ const userSchema = new Schema<UserDocument>({
 });
 
 // ✅ User Model (inherits from BaseModel)
-export class UserModel extends BaseModel<UserDocument> {
+export class UserService extends BaseModel<UserDocument> {
 	constructor() {
 		super("User", userSchema);
 	}
 
-	getUserById(id: string) {
-		return this.model.findById(id);
+	async getUserById(id: string): Promise<UserRead> {
+		const user = await this.model.findById(id);
+		return userReadSchema.parse(user);
 	}
 
 	// ✅ Fetch user by ID (returns `UserRead` type)
@@ -67,10 +60,9 @@ export class UserModel extends BaseModel<UserDocument> {
 		const hashedPassword = await bcrypt.hash(data.password, 10);
 		const user = await this.model.create({ ...data, password: hashedPassword });
 
-		const answer = userReadSchema.parse(user.toObject());
-		return answer;
+		return userReadSchema.parse(user);
 	}
 }
 
 // ✅ Export User Model
-export const userModel = new UserModel();
+export const userService = new UserService();

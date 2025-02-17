@@ -4,7 +4,7 @@ import { setupTests } from "./setup-tests.ts";
 const { app } = await setupTests();
 
 Deno.test("sign-up", async () => {
-	const response = await app.request("http://localhost:3000/sign-up", {
+	const response = await app.request("/sign-up", {
 		method: "POST",
 		body: JSON.stringify({
 			email: "Alex@email.com",
@@ -20,7 +20,7 @@ Deno.test("sign-up", async () => {
 });
 
 Deno.test("sign-in", async () => {
-	const response = await app.request("http://localhost:3000/sign-in", {
+	const response = await app.request("/sign-in", {
 		method: "POST",
 		body: JSON.stringify({
 			email: "Alex@email.com",

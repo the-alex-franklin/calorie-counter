@@ -4,7 +4,7 @@ import { env } from "./env.ts";
 import { authRoutes } from "./auth/auth.routes.ts";
 import { type JWT_Payload, jwtAuthMiddleware } from "./auth/auth.middleware.ts";
 import { cors } from "hono/cors";
-import { userModel } from "./db/UserModel.ts";
+import { userService } from "./db/services/UserService.ts";
 
 export class App {
 	app: Hono | Hono<JWT_Payload>;
@@ -22,7 +22,7 @@ export class App {
 		this.app.get("/protected", (c) => c.body("Protected route"));
 		this.app.get("/user", async (c) => {
 			const { id } = c.get("jwtPayload");
-			const user = await userModel.getUserById(id);
+			const user = await userService.getUserById(id);
 			return c.json(user);
 		});
 	}
