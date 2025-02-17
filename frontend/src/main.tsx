@@ -4,7 +4,7 @@ import "virtual:windi.css";
 // import { StrictMode } from "react"; // turn this back on before deploying
 // @deno-types="@types/react-dom/client"
 import { createRoot } from "react-dom/client";
-import { AppProviders } from "./AppProviders.tsx";
+import { App } from "./App.tsx";
 
 createRoot(document.getElementById("root")!)
-	.render(<AppProviders />);
+	.render(<App />);

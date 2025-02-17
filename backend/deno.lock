@@ -18,6 +18,7 @@
     "npm:jwt-simple@*": "0.5.6",
     "npm:mongo@*": "0.1.0",
     "npm:mongodb@*": "6.11.0",
+    "npm:mongodb@latest": "6.11.0",
     "npm:zod@*": "3.24.2"
   },
   "jsr": {

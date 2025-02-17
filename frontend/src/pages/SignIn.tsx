@@ -2,22 +2,15 @@ import React, { useState } from "react";
 import FormInput from "../components/FormInput.tsx";
 import FormButton from "../components/FormButton.tsx";
 import { Link } from "npm:react-router-dom";
-import axios from "npm:axios";
-import { useAuth } from "../providers/AuthProvider.tsx";
+import { useAuthStore } from "../state/auth.ts";
 
 const SignIn = () => {
-	const { login, logout } = useAuth();
+	const { login, logout } = useAuthStore();
 	const [email, setEmail] = useState<string>("");
 	const [password, setPassword] = useState<string>("");
 
 	const handleSignIn = async (e: React.FormEvent<HTMLFormElement>) => {
-		e.preventDefault();
-		const response = await axios.post("http://localhost:3000/sign-in", {
-			email,
-			password,
-		});
-
-		const { accessToken, refreshToken } = response.data;
+		await login(email, password);
 	};
 
 	return (

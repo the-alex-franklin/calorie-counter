@@ -3,21 +3,21 @@ import FormInput from "../components/FormInput.tsx";
 import FormButton from "../components/FormButton.tsx";
 import { Link } from "npm:react-router-dom";
 import axios from "npm:axios";
-import { useAuth } from "../providers/AuthProvider.tsx";
+import { useAuthStore } from "../state/auth.ts";
 
 const SignUp = () => {
-	const { login } = useAuth();
+	const { login } = useAuthStore();
 	const [email, setEmail] = useState<string>("");
 	const [password, setPassword] = useState<string>("");
 
 	const handleSignUp = async (e: React.FormEvent<HTMLFormElement>) => {
 		e.preventDefault();
-		const response = await axios.post("http://localhost:3000/sign-up", {
+		await axios.post("http://localhost:3000/sign-up", {
 			email,
 			password,
 		});
 
-		const { accessToken, refreshToken } = response.data;
+		await login(email, password);
 	};
 
 	return (
