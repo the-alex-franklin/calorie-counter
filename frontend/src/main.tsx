@@ -3,6 +3,7 @@ import "virtual:windi.css";
 // @deno-types="@types/react"
 // import { StrictMode } from "react"; // turn this back on before deploying
 // @deno-types="@types/react-dom/client"
+import { setupIonicReact } from "npm:@ionic/react";
 import { createRoot } from "react-dom/client";
 import { App } from "./App.tsx";
 

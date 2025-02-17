@@ -1,5 +1,5 @@
-import { z } from "npm:zod";
+import { z } from "zod";
 
 export const env_schema = z.object({
-  NODE_ENV: z.string(),
+	NODE_ENV: z.string(),
 });

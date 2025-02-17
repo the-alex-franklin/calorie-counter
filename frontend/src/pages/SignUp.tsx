@@ -6,24 +6,14 @@ import axios from "npm:axios";
 import { useAuthStore } from "../state/auth.ts";
 
 const SignUp = () => {
-	const { login } = useAuthStore();
+	const { login, signup } = useAuthStore();
 	const [email, setEmail] = useState<string>("");
 	const [password, setPassword] = useState<string>("");
-
-	const handleSignUp = async (e: React.FormEvent<HTMLFormElement>) => {
-		e.preventDefault();
-		await axios.post("http://localhost:3000/sign-up", {
-			email,
-			password,
-		});
-
-		await login(email, password);
-	};
 
 	return (
 		<div className="max-w-md p-6 bg-white shadow-md rounded-lg">
 			<h1 className="text-xl font-semibold mb-6">Sign Up</h1>
-			<form onSubmit={handleSignUp}>
+			<form onSubmit={() => signup(email, password)}>
 				<FormInput
 					label="Email"
 					type="email"
