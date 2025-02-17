@@ -1,0 +1,20 @@
+{
+  "appId": "com.example.denocapacitorapp",
+  "appName": "Deno Capacitor App",
+  "webDir": "../dist",
+  "server": {
+    "cleartext": true
+  },
+  "platforms": {
+    "android": {
+      "server": {
+        "url": "http://localhost:5173"
+      }
+    },
+    "ios": {
+      "server": {
+        "url": "http://localhost:5173"
+      }
+    }
+  }
+}

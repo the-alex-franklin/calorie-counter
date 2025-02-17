@@ -26,8 +26,7 @@ export class App {
 		this.app.route("/", authRoutes(this.userService));
 
 		this.app = this.app.use(jwtAuthMiddleware);
-		this.app.get("/protected", (c) => c.json({ message: "Protected" }));
-		this.app.get("/user", async (c) => {
+		this.app.get("/me", async (c) => {
 			const { id } = c.get("jwtPayload");
 			const user = await this.userService.getUserById(id);
 			return c.json(user);

@@ -7,7 +7,7 @@ Deno.test("auth", async (t) => {
 	let accessToken: string;
 
 	await t.step("unauthorized", async () => {
-		const response = await app.request("/protected");
+		const response = await app.request("/me");
 		const data = await response.json();
 		z.object({
 			error: z.literal("Unauthorized"),
@@ -52,7 +52,7 @@ Deno.test("auth", async (t) => {
 	});
 
 	await t.step("authorized", async () => {
-		const response = await app.request("/protected", {
+		const response = await app.request("/me", {
 			headers: {
 				Authorization: `Bearer ${accessToken}`,
 			},
@@ -61,7 +61,9 @@ Deno.test("auth", async (t) => {
 		const data = await response.json();
 
 		z.object({
-			message: z.literal("Protected"),
+			email: z.string().email(),
+			id: z.string(),
+			role: z.literal("user"),
 		}).parse(data);
 	});
 
