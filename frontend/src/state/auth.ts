@@ -63,12 +63,14 @@ export const useAuthStore = create<AuthState>()(
 				);
 				set({ user, accessToken, refreshToken });
 			},
-			logout: () =>
+			logout: () => {
 				set({
 					user: null,
 					accessToken: null,
 					refreshToken: null,
-				}),
+				});
+				localStorage.removeItem("auth-storage");
+			},
 		}),
 		{ name: "auth-storage" }, // Saves to localStorage
 	),

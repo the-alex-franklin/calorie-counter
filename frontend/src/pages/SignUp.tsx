@@ -1,8 +1,7 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import FormInput from "../components/FormInput.tsx";
 import FormButton from "../components/FormButton.tsx";
-import { Link } from "npm:react-router-dom";
-import axios from "npm:axios";
+import { Link } from "react-router-dom";
 import { useAuthStore } from "../state/auth.ts";
 
 const SignUp = () => {

@@ -27,7 +27,8 @@
 		"vite": "npm:vite@^6.0.1",
 		"zustand": "npm:zustand",
 		"axios": "npm:axios",
-		"zod": "npm:zod"
+		"zod": "npm:zod",
+		"unocss": "npm:unocss"
 	},
 	"fmt": {
 		"lineWidth": 120,

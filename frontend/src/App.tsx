@@ -8,7 +8,7 @@ export function App() {
 	const { user } = useAuthStore();
 
 	return (
-		<div className="w-screen h-screen bg-gray-800 flex flex-col p-12 text-black">
+		<div className="w-full h-full bg-primary flex flex-col p-6 text-black">
 			<BrowserRouter>
 				{user
 					? (
