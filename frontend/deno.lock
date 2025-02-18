@@ -1,6 +1,7 @@
 {
   "version": "4",
   "specifiers": {
+    "jsr:@2or3godzillas/fp-try@*": "1.2.0",
     "npm:@bistroo/vite-plugin-capacitor@*": "3.0.0_@capacitor+cli@6.2.0_vite@5.4.14__@types+node@22.5.4_@types+node@22.5.4",
     "npm:@deno/vite-plugin@1": "1.0.4_vite@6.1.0__@types+node@22.5.4_@types+node@22.5.4",
     "npm:@ionic/react@*": "8.4.3_react@18.3.1_react-dom@18.3.1__react@18.3.1",
@@ -13,6 +14,7 @@
     "npm:@vitejs/plugin-react-swc@^3.7.1": "3.8.0_vite@6.1.0__@types+node@22.5.4_@types+node@22.5.4",
     "npm:address@*": "1.2.2",
     "npm:axios@*": "1.7.9",
+    "npm:fast-json-parse@*": "1.0.3",
     "npm:react-dom@^18.3.1": "18.3.1_react@18.3.1",
     "npm:react-router-dom@*": "7.1.5_react@18.3.1_react-dom@18.3.1__react@18.3.1",
     "npm:react-router-dom@^7.1.5": "7.1.5_react@18.3.1_react-dom@18.3.1__react@18.3.1",
@@ -25,6 +27,11 @@
     "npm:vite@^6.0.1": "6.1.0_@types+node@22.5.4",
     "npm:zod@*": "3.24.1",
     "npm:zustand@*": "5.0.3_@types+react@18.3.18_react@18.3.1"
+  },
+  "jsr": {
+    "@2or3godzillas/fp-try@1.2.0": {
+      "integrity": "79dc3ccd1cb80a1d9313bb320b286d77daa872f673d1a3b2b0b0227df5afe84d"
+    }
   },
   "npm": {
     "@ampproject/remapping@2.3.0": {
@@ -1098,6 +1105,9 @@
         "micromatch"
       ]
     },
+    "fast-json-parse@1.0.3": {
+      "integrity": "sha512-FRWsaZRWEJ1ESVNbDWmsAlqDk96gPQezzLghafp5J4GUKjbCz3OkAHuZs5TuPEtkbVQERysLp9xv6c24fBm8Aw=="
+    },
     "fastq@1.19.0": {
       "integrity": "sha512-7SFSRCNjBQIZH/xZR3iy5iQYR8aGBE0h3VG6/cwlbrpdciNYBMotQav8c1XI3HjHH+NikUpP53nPdlZSdWmFzA==",
       "dependencies": [
@@ -1815,6 +1825,10 @@
       ]
     }
   },
+  "redirects": {
+    "https://esm.sh/fast-json-parse": "https://esm.sh/fast-json-parse@1.0.3",
+    "https://esm.sh/fast-json-parse/types.d.ts": "https://esm.sh/fast-json-parse@1.0.3/types.d.ts"
+  },
   "remote": {
     "https://deno.land/std@0.224.0/assert/assert.ts": "09d30564c09de846855b7b071e62b5974b001bb72a4b797958fe0660e7849834",
     "https://deno.land/std@0.224.0/assert/assertion_error.ts": "ba8752bd27ebc51f723702fac2f54d3e94447598f54264a6653d6413738a8917",
@@ -1881,7 +1895,9 @@
     "https://deno.land/std@0.224.0/path/windows/normalize_glob.ts": "9c87a829b6c0f445d03b3ecadc14492e2864c3ebb966f4cea41e98326e4435c6",
     "https://deno.land/std@0.224.0/path/windows/resolve.ts": "8dae1dadfed9d46ff46cc337c9525c0c7d959fb400a6308f34595c45bdca1972",
     "https://deno.land/x/dotenv@v3.2.2/mod.ts": "077b48773de9205266a0b44c3c3a3c3083449ed64bb0b6cc461b95720678d38e",
-    "https://deno.land/x/dotenv@v3.2.2/util.ts": "693730877b13f8ead2b79b2aa31e2a0652862f7dc0c5f6d2f313f4d39c7b7670"
+    "https://deno.land/x/dotenv@v3.2.2/util.ts": "693730877b13f8ead2b79b2aa31e2a0652862f7dc0c5f6d2f313f4d39c7b7670",
+    "https://esm.sh/fast-json-parse@1.0.3": "2ef005c674d2c8161d6ddc9d2142732e890a21c8b029be35dcb8048aa83d26ff",
+    "https://esm.sh/fast-json-parse@1.0.3/denonext/fast-json-parse.mjs": "9988b580924c6977102f02af52daf4652777c89343332fe8174ca638eb1810f1"
   },
   "workspace": {
     "dependencies": [

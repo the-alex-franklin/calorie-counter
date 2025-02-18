@@ -28,7 +28,8 @@
 		"zustand": "npm:zustand",
 		"axios": "npm:axios",
 		"zod": "npm:zod",
-		"unocss": "npm:unocss"
+		"unocss": "npm:unocss",
+		"fast-json-parse": "https://esm.sh/fast-json-parse@1.0.3"
 	},
 	"fmt": {
 		"lineWidth": 120,
