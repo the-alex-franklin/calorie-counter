@@ -72,6 +72,6 @@ export const useAuthStore = create<AuthState>()(
 				localStorage.removeItem("auth-storage");
 			},
 		}),
-		{ name: "auth-storage" }, // Saves to localStorage
+		{ name: "auth-storage" },
 	),
 );

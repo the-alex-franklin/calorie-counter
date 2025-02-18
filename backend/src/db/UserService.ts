@@ -1,5 +1,5 @@
 import { Collection, Db, ObjectId } from "mongodb";
-import bcrypt from "bcryptjs";
+import bcryptjs from "bcryptjs";
 import { z } from "zod";
 import { PlatformError } from "../errors/platform.error.ts";
 
@@ -25,45 +25,46 @@ type UserDocument = {
 };
 
 export class UserService {
-	collection: Collection<UserDocument>;
+	users: Collection<UserDocument>;
 
 	constructor(db: Db) {
-		this.collection = db.collection<UserDocument>("users");
+		this.users = db.collection<UserDocument>("users");
 	}
 
 	async comparePassword({ email, password }: UserWrite): Promise<UserRead> {
-		const user = await this.collection.findOne({ email });
+		const user = await this.users.findOne({ email });
 		if (!user) throw new PlatformError("Unauthorized", 401);
 
-		const isPasswordValid = await bcrypt.compare(password, user.password);
+		const isPasswordValid = await bcryptjs.compare(password, user.password);
 		if (!isPasswordValid) throw new PlatformError("Unauthorized", 401);
 
 		return userReadSchema.parse(user);
 	}
 
 	async getUserById(id: string): Promise<UserRead> {
-		const user = await this.collection.findOne({ _id: new ObjectId(id) });
+		const user = await this.users.findOne({ _id: new ObjectId(id) });
 		return userReadSchema.parse(user);
 	}
 
 	async getUserByEmail(email: string): Promise<UserRead> {
-		const user = await this.collection.findOne({ email });
+		const user = await this.users.findOne({ email });
 		return userReadSchema.parse(user);
 	}
 
 	async createUser({ email, password }: UserWrite): Promise<UserRead> {
-		const existingUser = await this.collection.findOne({ email });
-		if (existingUser) throw new PlatformError("Bad Request", 400);
+		const existingUser = await this.users.findOne({ email });
+		if (existingUser) throw new PlatformError("Email already exists", -1);
 
-		const hashedPassword = await bcrypt.hash(password, 10);
+		const hashedPassword = await bcryptjs.hash(password, 10);
 		const newUser = {
+			_id: new ObjectId(),
 			email,
 			password: hashedPassword,
 			role: "user" as const,
 		};
 
-		// @ts-ignore -
-		const result = await this.collection.insertOne(newUser);
-		return userReadSchema.parse({ _id: result.insertedId, email, role: "user" });
+		const result = await this.users.insertOne(newUser);
+		const user = await this.users.findOne({ _id: result.insertedId });
+		return userReadSchema.parse(user);
 	}
 }

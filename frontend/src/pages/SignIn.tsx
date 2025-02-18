@@ -2,7 +2,7 @@ import { useState } from "react";
 import FormInput from "../components/FormInput.tsx";
 import FormButton from "../components/FormButton.tsx";
 import { Link } from "npm:react-router-dom";
-import { useAuthStore } from "../state/auth.ts";
+import { useAuthStore } from "../data-stores/auth.ts";
 
 const SignIn = () => {
 	const { login } = useAuthStore();

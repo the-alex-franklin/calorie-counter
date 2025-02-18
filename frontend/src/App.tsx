@@ -2,7 +2,7 @@ import { Dashboard } from "./pages/Dashboard.tsx";
 import SignIn from "./pages/SignIn.tsx";
 import SignUp from "./pages/SignUp.tsx";
 import { BrowserRouter, Navigate, Route, Routes } from "npm:react-router-dom";
-import { useAuthStore } from "./state/auth.ts";
+import { useAuthStore } from "./data-stores/auth.ts";
 
 export function App() {
 	const { user } = useAuthStore();
