@@ -14,7 +14,7 @@ export default defineConfig({
 			presets: [presetIcons, presetUno],
 			theme: {
 				colors: {
-					primary: "#fff",
+					primary: "#007AFF",
 					darkPrimary: "#1e1e1e",
 				},
 			},

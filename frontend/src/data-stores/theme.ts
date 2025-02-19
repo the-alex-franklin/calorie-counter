@@ -17,13 +17,14 @@ export const useThemeStore = create<ThemeState>()(
 					return response.value.state.darkMode;
 				});
 
-				if (result.success) {
-					if (result.data) document.documentElement.classList.add("dark");
-					return result.data;
+				if (result.failure) {
+					document.documentElement.classList.add("dark");
+					return true;
 				}
 
-				document.documentElement.classList.add("dark");
-				return true;
+				const darkMode = result.data;
+				if (darkMode) document.documentElement.classList.add("dark");
+				return darkMode;
 			})(),
 			toggleTheme: () => {
 				const newTheme = !(get().darkMode);

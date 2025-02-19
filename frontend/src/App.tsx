@@ -8,23 +8,21 @@ export function App() {
 	const { user } = useAuthStore();
 
 	return (
-		<div className="w-full h-full bg-primary flex flex-col p-6 text-black">
-			<BrowserRouter>
-				{user
-					? (
-						<Routes>
-							<Route path="/dashboard" element={<Dashboard />} />
-							<Route path="*" element={<Navigate to="/dashboard" />} />
-						</Routes>
-					)
-					: (
-						<Routes>
-							<Route path="/sign-up" element={<SignUp />} />
-							<Route path="/sign-in" element={<SignIn />} />
-							<Route path="*" element={<Navigate to="/sign-in" />} />
-						</Routes>
-					)}
-			</BrowserRouter>
-		</div>
+		<BrowserRouter>
+			{user
+				? (
+					<Routes>
+						<Route path="/dashboard" element={<Dashboard />} />
+						<Route path="*" element={<Navigate to="/dashboard" />} />
+					</Routes>
+				)
+				: (
+					<Routes>
+						<Route path="/sign-up" element={<SignUp />} />
+						<Route path="/sign-in" element={<SignIn />} />
+						<Route path="*" element={<Navigate to="/sign-in" />} />
+					</Routes>
+				)}
+		</BrowserRouter>
 	);
 }

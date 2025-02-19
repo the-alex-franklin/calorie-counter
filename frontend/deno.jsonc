@@ -16,6 +16,8 @@
 	},
 	"nodeModulesDir": "auto",
 	"imports": {
+		"@capacitor/core": "npm:@capacitor/core@^7.0.1",
+		"@capacitor/camera": "npm:@capacitor/camera@^7.0.0",
 		"@deno/vite-plugin": "npm:@deno/vite-plugin@^1.0.0",
 		"@swc/core": "npm:@swc/core@^1.10.16",
 		"@types/react": "npm:@types/react@^18.3.12",
@@ -29,7 +31,9 @@
 		"axios": "npm:axios",
 		"zod": "npm:zod",
 		"unocss": "npm:unocss",
-		"fast-json-parse": "https://esm.sh/fast-json-parse@1.0.3"
+		"fast-json-parse": "https://esm.sh/fast-json-parse@1.0.3",
+		"@headlessui/react": "npm:@headlessui/react",
+		"recharts": "npm:recharts"
 	},
 	"fmt": {
 		"lineWidth": 120,
