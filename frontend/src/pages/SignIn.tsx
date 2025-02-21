@@ -1,6 +1,6 @@
 import { useState } from "react";
-import FormInput from "../components/FormInput.tsx";
-import FormButton from "../components/FormButton.tsx";
+import { FormInput } from "../components/FormInput.tsx";
+import { FormButton } from "../components/FormButton.tsx";
 import { Link } from "react-router-dom";
 import { useAuthStore } from "../data-stores/auth.ts";
 

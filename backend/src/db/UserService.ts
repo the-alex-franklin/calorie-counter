@@ -31,16 +31,6 @@ export class UserService {
 		this.users = db.collection<UserDocument>("users");
 	}
 
-	async comparePassword({ email, password }: UserWrite): Promise<UserRead> {
-		const user = await this.users.findOne({ email });
-		if (!user) throw new PlatformError("Unauthorized", 401);
-
-		const isPasswordValid = await bcryptjs.compare(password, user.password);
-		if (!isPasswordValid) throw new PlatformError("Unauthorized", 401);
-
-		return userReadSchema.parse(user);
-	}
-
 	async getUserById(id: string): Promise<UserRead> {
 		const user = await this.users.findOne({ _id: new ObjectId(id) });
 		return userReadSchema.parse(user);
@@ -65,6 +55,16 @@ export class UserService {
 
 		const result = await this.users.insertOne(newUser);
 		const user = await this.users.findOne({ _id: result.insertedId });
+		return userReadSchema.parse(user);
+	}
+
+	async comparePassword({ email, password }: UserWrite): Promise<UserRead> {
+		const user = await this.users.findOne({ email });
+		if (!user) throw new PlatformError("Unauthorized", 401);
+
+		const isPasswordValid = await bcryptjs.compare(password, user.password);
+		if (!isPasswordValid) throw new PlatformError("Unauthorized", 401);
+
 		return userReadSchema.parse(user);
 	}
 }

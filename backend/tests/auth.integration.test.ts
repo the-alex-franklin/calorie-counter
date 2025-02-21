@@ -9,6 +9,7 @@ Deno.test("auth", async (t) => {
 	await t.step("unauthorized", async () => {
 		const response = await app.request("/me");
 		const data = await response.json();
+
 		z.object({
 			error: z.literal("Unauthorized"),
 		}).parse(data);
@@ -22,9 +23,7 @@ Deno.test("auth", async (t) => {
 				password: "123456",
 			}),
 		});
-
 		const data = await response.json();
-		console.log({ data });
 
 		z.object({
 			accessToken: z.string().regex(/^eyJ/),
@@ -40,7 +39,6 @@ Deno.test("auth", async (t) => {
 				password: "123456",
 			}),
 		});
-
 		const data = await response.json();
 
 		z.object({

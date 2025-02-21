@@ -3,24 +3,24 @@ import { z } from "zod";
 import { generateAccessToken, generateRefreshToken } from "./jwt.ts";
 import { UserService } from "../db/UserService.ts";
 
+const signUpSchema = z.object({
+	email: z.string().email().refine((email) => {
+		/* email addresses have some weird rules for what's valid.
+		Most of the weirdness happens inside quotes,
+		so I'm just invalidating email addresses with quotes */
+		if (email.match('"')) return false;
+		return true;
+	}).transform((email) => {
+		const [name, domain] = email.toLowerCase().split("@");
+		const name_without_periods = name!.replaceAll(/\./g, "");
+		return name_without_periods + "@" + domain;
+	}),
+	password: z.string(),
+});
+const signInSchema = signUpSchema;
+
 export function authRoutes(userService: UserService) {
 	const router = new Hono();
-
-	const signUpSchema = z.object({
-		email: z.string().email().refine((email) => {
-			/* email addresses have some weird rules for what's valid.
-			Most of the weirdness happens inside quotes,
-			so I'm just invalidating email addresses with quotes */
-			if (email.match('"')) return false;
-			return true;
-		}).transform((email) => {
-			const [name, domain] = email.toLowerCase().split("@");
-			const name_without_periods = name!.replaceAll(/\./g, "");
-			return name_without_periods + "@" + domain;
-		}),
-		password: z.string(),
-	});
-	const signInSchema = signUpSchema;
 
 	router.post("/sign-up", async (c) => {
 		const json = await c.req.json();

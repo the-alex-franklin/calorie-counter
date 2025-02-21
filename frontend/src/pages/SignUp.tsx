@@ -1,11 +1,11 @@
 import { useState } from "react";
-import FormInput from "../components/FormInput.tsx";
-import FormButton from "../components/FormButton.tsx";
+import { FormInput } from "../components/FormInput.tsx";
+import { FormButton } from "../components/FormButton.tsx";
 import { Link } from "react-router-dom";
 import { useAuthStore } from "../data-stores/auth.ts";
 
 const SignUp = () => {
-	const { login, signup } = useAuthStore();
+	const { signup } = useAuthStore();
 	const [email, setEmail] = useState<string>("");
 	const [password, setPassword] = useState<string>("");
 

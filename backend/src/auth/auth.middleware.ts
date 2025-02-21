@@ -1,7 +1,5 @@
 import { type MiddlewareHandler } from "hono";
 import { decodeAccessToken } from "./jwt.ts";
-import { getSignedCookie } from "hono/cookie";
-import { env } from "../env.ts";
 import { PlatformError } from "../errors/platform.error.ts";
 
 export type JWT_Payload = {

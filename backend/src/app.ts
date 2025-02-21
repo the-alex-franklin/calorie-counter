@@ -12,20 +12,21 @@ export class App {
 
 	constructor({ db }: { db: Db }) {
 		this.app = new Hono();
-		this.app.onError((err, c) => {
-			if (err instanceof PlatformError) return c.json({ error: err.message }, err.code);
-
-			return c.json({ error: err.message || "Internal Server Error" }, 500);
-		});
-
 		this.userService = new UserService(db);
 
 		this.app.use(cors({ origin: "*" }));
 
+		this.app.onError((err, c) => {
+			if (err instanceof PlatformError) return c.json({ error: err.message }, err.code);
+			return c.json({ error: err.message || "Internal Server Error" }, 500);
+		});
+
 		this.app.get("/", (c) => c.body("200 OK"));
+
 		this.app.route("/", authRoutes(this.userService));
 
 		this.app = this.app.use(jwtAuthMiddleware);
+
 		this.app.get("/me", async (c) => {
 			const { id } = c.get("jwtPayload");
 			const user = await this.userService.getUserById(id);
@@ -35,9 +36,8 @@ export class App {
 }
 
 if (import.meta.main) {
-	const client = new MongoClient("mongodb://localhost:27017"); // Adjust connection URL
-	await client.connect();
-	const db: Db = client.db("calorie-counter");
+	const client = await new MongoClient("mongodb://localhost:27017").connect();
+	const db: Db = client.db();
 
 	const { app } = new App({ db });
 
