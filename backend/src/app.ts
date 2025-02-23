@@ -2,44 +2,41 @@ import { Hono } from "hono";
 import { authRoutes } from "./auth/auth.routes.ts";
 import { type JWT_Payload, jwtAuthMiddleware } from "./auth/auth.middleware.ts";
 import { cors } from "hono/cors";
-import { UserService } from "./db/UserService.ts";
+import { createUserService } from "./db/UserService.ts";
 import { type Db, MongoClient } from "mongodb";
 import { PlatformError } from "./errors/platform.error.ts";
 
-export class App {
-	app: Hono | Hono<JWT_Payload>;
-	userService: UserService;
+export function createApp({ db }: { db: Db }) {
+	const app = new Hono<JWT_Payload>();
+	const userService = createUserService(db);
 
-	constructor({ db }: { db: Db }) {
-		this.app = new Hono();
-		this.userService = new UserService(db);
+	app.use(cors({ origin: "*" }));
 
-		this.app.use(cors({ origin: "*" }));
+	app.onError((err, c) => {
+		if (err instanceof PlatformError) return c.json({ error: err.message }, err.code);
+		else return c.json({ error: err.message || "Internal Server Error" }, 500);
+	});
 
-		this.app.onError((err, c) => {
-			if (err instanceof PlatformError) return c.json({ error: err.message }, err.code);
-			return c.json({ error: err.message || "Internal Server Error" }, 500);
-		});
+	app.get("/", (c) => c.body("200 OK"));
 
-		this.app.get("/", (c) => c.body("200 OK"));
+	app.route("/", authRoutes(userService));
 
-		this.app.route("/", authRoutes(this.userService));
+	app.use(jwtAuthMiddleware);
 
-		this.app = this.app.use(jwtAuthMiddleware);
+	app.get("/me", async (c) => {
+		const { id } = c.get("jwtPayload");
+		const user = await userService.getUserById(id);
+		return c.json(user);
+	});
 
-		this.app.get("/me", async (c) => {
-			const { id } = c.get("jwtPayload");
-			const user = await this.userService.getUserById(id);
-			return c.json(user);
-		});
-	}
+	return app;
 }
 
 if (import.meta.main) {
 	const client = await new MongoClient("mongodb://localhost:27017").connect();
 	const db: Db = client.db();
 
-	const { app } = new App({ db });
+	const app = createApp({ db });
 
 	Deno.serve({
 		port: 3000,

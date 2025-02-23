@@ -1,9 +1,9 @@
 import { Hono } from "hono";
 import { z } from "zod";
 import { generateAccessToken, generateRefreshToken } from "./jwt.ts";
-import { UserService } from "../db/UserService.ts";
+import type { UserService } from "../db/UserService.ts";
 
-const signUpSchema = z.object({
+const authRequestSchema = z.object({
 	email: z.string().email().refine((email) => {
 		/* email addresses have some weird rules for what's valid.
 		Most of the weirdness happens inside quotes,
@@ -17,14 +17,13 @@ const signUpSchema = z.object({
 	}),
 	password: z.string(),
 });
-const signInSchema = signUpSchema;
 
 export function authRoutes(userService: UserService) {
 	const router = new Hono();
 
 	router.post("/sign-up", async (c) => {
 		const json = await c.req.json();
-		const { email, password } = signUpSchema.parse(json);
+		const { email, password } = authRequestSchema.parse(json);
 
 		const user = await userService.createUser({ email, password });
 
@@ -36,7 +35,7 @@ export function authRoutes(userService: UserService) {
 
 	router.post("/sign-in", async (c) => {
 		const json = await c.req.json();
-		const { email, password } = signInSchema.parse(json);
+		const { email, password } = authRequestSchema.parse(json);
 
 		const user = await userService.comparePassword({ email, password });
 

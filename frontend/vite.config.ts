@@ -14,13 +14,13 @@ export default defineConfig({
 			presets: [presetIcons, presetUno],
 			theme: {
 				colors: {
-					primary: "#007AFF",
-					darkPrimary: "#1e1e1e",
+					primary: "#fff",
+					dark: "#1e1e1e",
 				},
 			},
 			shortcuts: {
-				"bg-primary": "bg-primary dark:bg-darkPrimary",
-				"text-primary": "text-darkPrimary dark:text-white",
+				"bg-primary": "bg-primary dark:bg-dark",
+				"text-primary": "text-dark dark:text-white",
 			},
 		}),
 	],

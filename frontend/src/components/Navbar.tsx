@@ -1,0 +1,43 @@
+import { useThemeStore } from "../data-stores/theme.ts"; // Adjust import as needed
+import { useState } from "react";
+
+export function Navbar() {
+	const { darkMode, toggleTheme } = useThemeStore();
+	const [isOpen, setIsOpen] = useState(false);
+
+	const toggleDrawer = () => setIsOpen(!isOpen);
+
+	return (
+		<div>
+			{/* Navbar */}
+			<nav className="bg-primary dark:bg-dark text-white p-4 flex items-center">
+				<button className="bg-inherit border-none text-primary ml-2 text-xl" onClick={toggleDrawer}>
+					☰
+				</button>
+			</nav>
+
+			{/* Side Drawer */}
+			<div
+				className={`fixed bg-primary text-primary top-0 left-0 z-1 h-full w-64 shadow-lg transform ${
+					isOpen ? "translate-x-0" : "-translate-x-full"
+				} transition-transform duration-300`}
+			>
+				<button className="absolute bg-primary text-primary border-none top-4 right-4 text-2xl" onClick={toggleDrawer}>
+					×
+				</button>
+				<div className="p-6 space-y-4">
+					<h2 className="text-lg font-bold">Settings</h2>
+					<button
+						onClick={toggleTheme}
+						className="bg-primary text-primary p-2 rounded w-full text-left"
+					>
+						{darkMode ? "☀ Light Mode" : "🌙 Dark Mode"}
+					</button>
+				</div>
+			</div>
+
+			{/* Overlay */}
+			{isOpen && <div className="fixed inset-0 bg-black/50" onClick={toggleDrawer}></div>}
+		</div>
+	);
+}
