@@ -24,16 +24,14 @@
 		"@types/react-dom": "npm:@types/react-dom@^18.3.1",
 		"@vitejs/plugin-react-swc": "npm:@vitejs/plugin-react-swc@^3.7.1",
 		"react": "npm:react@^18.3.1",
+		"react-circular-progressbar": "npm:react-circular-progressbar@^2.2.0",
 		"react-dom": "npm:react-dom@^18.3.1",
 		"react-router-dom": "npm:react-router-dom@^7.1.5",
 		"vite": "npm:vite@^6.0.1",
 		"zustand": "npm:zustand",
 		"axios": "npm:axios",
 		"zod": "npm:zod",
-		"unocss": "npm:unocss",
-		"fast-json-parse": "https://esm.sh/fast-json-parse@1.0.3",
-		"@headlessui/react": "npm:@headlessui/react",
-		"recharts": "npm:recharts"
+		"unocss": "npm:unocss"
 	},
 	"fmt": {
 		"lineWidth": 120,

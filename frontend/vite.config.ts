@@ -11,11 +11,11 @@ export default defineConfig({
 		deno(),
 		react(),
 		uno({
-			presets: [presetIcons, presetUno],
+			presets: [presetUno, presetIcons],
 			theme: {
 				colors: {
 					primary: "#fff",
-					dark: "#1e1e1e",
+					dark: "#111827",
 				},
 			},
 			shortcuts: {

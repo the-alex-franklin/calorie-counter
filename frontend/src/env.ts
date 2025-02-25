@@ -1,4 +1,4 @@
 import { env_schema } from "../env.schema.ts";
+import process from "node:process";
 
-// deno-lint-ignore no-process-globals
 export const env = env_schema.parse(process.env);

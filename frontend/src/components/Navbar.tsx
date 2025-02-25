@@ -1,7 +1,10 @@
-import { useThemeStore } from "../data-stores/theme.ts"; // Adjust import as needed
+// @deno-types="@types/react"
 import { useState } from "react";
+import { useAuthStore } from "../data-stores/auth.ts";
+import { useThemeStore } from "../data-stores/theme.ts";
 
 export function Navbar() {
+	const { logout } = useAuthStore();
 	const { darkMode, toggleTheme } = useThemeStore();
 	const [isOpen, setIsOpen] = useState(false);
 
@@ -9,14 +12,12 @@ export function Navbar() {
 
 	return (
 		<div>
-			{/* Navbar */}
-			<nav className="bg-primary dark:bg-dark text-white p-4 flex items-center">
+			<nav className="text-white p-4 flex items-center">
 				<button className="bg-inherit border-none text-primary ml-2 text-xl" onClick={toggleDrawer}>
 					☰
 				</button>
 			</nav>
 
-			{/* Side Drawer */}
 			<div
 				className={`fixed bg-primary text-primary top-0 left-0 z-1 h-full w-64 shadow-lg transform ${
 					isOpen ? "translate-x-0" : "-translate-x-full"
@@ -33,10 +34,15 @@ export function Navbar() {
 					>
 						{darkMode ? "☀ Light Mode" : "🌙 Dark Mode"}
 					</button>
+					<button
+						onClick={logout}
+						className="bg-primary text-primary p-2 rounded w-full text-left"
+					>
+						Logout
+					</button>
 				</div>
 			</div>
 
-			{/* Overlay */}
 			{isOpen && <div className="fixed inset-0 bg-black/50" onClick={toggleDrawer}></div>}
 		</div>
 	);

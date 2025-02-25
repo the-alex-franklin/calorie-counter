@@ -1,6 +1,6 @@
 import { Hono } from "hono";
 import { z } from "zod";
-import { generateAccessToken, generateRefreshToken } from "./jwt.ts";
+import { decodeRefreshToken, generateAccessToken, generateRefreshToken } from "./jwt.ts";
 import type { UserService } from "../db/UserService.ts";
 
 const authRequestSchema = z.object({
@@ -11,8 +11,9 @@ const authRequestSchema = z.object({
 		if (email.match('"')) return false;
 		return true;
 	}).transform((email) => {
-		const [name, domain] = email.toLowerCase().split("@");
-		const name_without_periods = name!.replaceAll(/\./g, "");
+		/* here I'm removing periods before the @, because those are ignored by the DNS when sending an email */
+		const [name, domain] = email.toLowerCase().split("@") as [string, string];
+		const name_without_periods = name.replaceAll(/\./g, "");
 		return name_without_periods + "@" + domain;
 	}),
 	password: z.string(),
@@ -57,15 +58,17 @@ export function authRoutes(userService: UserService) {
 
 	router.post("/token-refresh", async (c) => {
 		const json = await c.req.json();
-		const { refreshToken } = z.object({ refreshToken: z.string() }).parse(json);
+		const id = z.object({ refreshToken: z.string() })
+			.transform(({ refreshToken }) => decodeRefreshToken(refreshToken).id)
+			.parse(json);
 
-		const user = await userService.getUserById(refreshToken);
+		const user = await userService.getUserById(id);
 		if (!user) return c.json({ status: "error", message: "User not found" });
 
 		const accessToken = generateAccessToken(user);
-		const newRefreshToken = generateRefreshToken(user);
+		const refreshToken = generateRefreshToken(user);
 
-		return c.json({ accessToken, refreshToken: newRefreshToken });
+		return c.json({ accessToken, refreshToken });
 	});
 
 	return router;

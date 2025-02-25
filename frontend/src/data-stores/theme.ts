@@ -1,7 +1,7 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import fastJSON from "fast-json-parse";
 import { Try } from "jsr:@2or3godzillas/fp-try";
+import { z } from "zod";
 
 type ThemeState = {
 	darkMode: boolean;
@@ -13,8 +13,20 @@ export const useThemeStore = create<ThemeState>()(
 		(set, get) => ({
 			darkMode: (() => {
 				const result = Try(() => {
-					const response = fastJSON<{ state: { darkMode: boolean } }>(localStorage.getItem("theme-storage")!);
-					return response.value.state.darkMode;
+					const theme = localStorage.getItem("theme-storage");
+					if (!theme) throw new Error("No theme stored");
+
+					const json = JSON.parse(theme);
+
+					const { value } = z.object({
+						value: z.object({
+							state: z.object({
+								darkMode: z.boolean(),
+							}),
+						}),
+					}).parse(json);
+
+					return value.state.darkMode;
 				});
 
 				if (result.failure) {

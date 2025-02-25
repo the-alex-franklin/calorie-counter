@@ -25,7 +25,14 @@ type UserDocument = {
 };
 
 export type UserService = ReturnType<typeof createUserService>;
-export function createUserService(db: Db) {
+
+let instance: UserService | null = null;
+export function getUserService(db: Db): UserService {
+	instance ??= createUserService(db);
+	return instance;
+}
+
+function createUserService(db: Db) {
 	const users = db.collection<UserDocument>("users");
 
 	return {
@@ -53,6 +60,7 @@ export function createUserService(db: Db) {
 
 			const result = await users.insertOne(newUser);
 			const user = await users.findOne({ _id: result.insertedId });
+
 			return userReadSchema.parse(user);
 		},
 

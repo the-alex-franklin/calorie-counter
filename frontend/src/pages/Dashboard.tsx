@@ -1,20 +1,29 @@
 // @deno-types="@types/react"
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Capacitor } from "@capacitor/core";
 import { Camera, CameraResultType } from "@capacitor/camera";
-import { Transition } from "@headlessui/react";
-import { useThemeStore } from "../data-stores/theme.ts"; // Ensure correct path
-import { Navbar } from "../components/Navbar.tsx"; // Import the Navbar component
+import { useThemeStore } from "../data-stores/theme.ts";
+import { Navbar } from "../components/Navbar.tsx";
 import { Try } from "jsr:@2or3godzillas/fp-try";
+import { buildStyles, CircularProgressbar } from "react-circular-progressbar";
+import "react-circular-progressbar/dist/styles.css";
 
 export const Dashboard = () => {
 	const { darkMode } = useThemeStore();
-	const [photo, setPhoto] = useState<string | null>(null);
 	const [isCameraOpen, setIsCameraOpen] = useState(false);
+	const [photo, setPhoto] = useState<string | null>(null);
+	const [calories, setCalories] = useState(0);
 	const videoRef = useRef<HTMLVideoElement | null>(null);
 	const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
-	// Open camera (native or web)
+	useEffect(() => {
+		if (isCameraOpen) startWebcam();
+	}, [isCameraOpen]);
+
+	useEffect(() => {
+		fetchCalories();
+	}, []);
+
 	const openCamera = async () => {
 		if (Capacitor.isNativePlatform()) {
 			const capturedPhoto = await Try(() => (
@@ -31,7 +40,6 @@ export const Dashboard = () => {
 
 			setPhoto(capturedPhoto.data.webPath || null);
 		} else {
-			await startWebcam();
 			setIsCameraOpen(true);
 		}
 	};
@@ -50,77 +58,103 @@ export const Dashboard = () => {
 	};
 
 	const captureWebcamPhoto = () => {
-		if (!videoRef.current) return;
-		if (!canvasRef.current) return;
+		Try(() => {
+			if (!videoRef.current) throw new Error("videoRef does not exist");
+			if (!canvasRef.current) throw new Error("canvasRef does not exist");
 
-		const video = videoRef.current;
-		const canvas = canvasRef.current;
-		const ctx = canvas.getContext("2d");
+			const video = videoRef.current;
+			const canvas = canvasRef.current;
+			const ctx = canvas.getContext("2d");
+			if (!ctx) throw new Error("Failed to get canvas context");
 
-		canvas.width = video.videoWidth;
-		canvas.height = video.videoHeight;
-		ctx?.drawImage(video, 0, 0, canvas.width, canvas.height);
+			canvas.width = video.videoWidth;
+			canvas.height = video.videoHeight;
+			ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+			setPhoto(canvas.toDataURL("image/png"));
+		});
 
-		setPhoto(canvas.toDataURL("image/png"));
 		closeCamera();
 	};
 
 	const closeCamera = () => {
-		if (videoRef.current?.srcObject) {
+		if (videoRef.current) {
 			const stream = videoRef.current.srcObject as MediaStream;
 			stream.getTracks().forEach((track) => track.stop());
 		}
-
 		setIsCameraOpen(false);
 	};
 
+	const fetchCalories = async () => {
+		// Replace with actual API call
+		const fetchedCalories = await Promise.resolve(1200);
+		setCalories(fetchedCalories);
+	};
+
 	return (
-		<div className={`h-full w-full ${darkMode ? "bg-gray-900 text-white" : "bg-gray-100 text-gray-900"}`}>
+		<div
+			className={`h-full w-full ${darkMode ? "bg-gray-900 text-white" : "bg-gray-100 text-gray-900"} transition-all`}
+		>
 			<Navbar />
 
-			<div className="flex flex-col items-center justify-center h-[calc(100vh-60px)] p-4">
-				<h1 className="text-3xl font-bold mb-4">AI Calorie Counter</h1>
+			<div className="flex flex-col items-center justify-center h-[calc(100vh-60px)] p-4 pb-16">
+				<h1 className="text-4xl font-bold tracking-wide mb-6">AI Calorie Counter</h1>
+
+				<div className="w-64 h-64 mb-6">
+					<CircularProgressbar
+						value={calories}
+						maxValue={2000} // Assuming 2000 is the daily goal
+						text={`${calories} kcal`}
+						styles={buildStyles({
+							textColor: darkMode ? "#fff" : "#000",
+							pathColor: calories > 2000 ? "red" : "green",
+							trailColor: darkMode ? "#333" : "#ddd",
+						})}
+					/>
+				</div>
 
 				{photo
 					? (
 						<div className="flex flex-col items-center">
-							<div className="w-64 flex items-center justify-center bg-gray-200 dark:bg-gray-700 rounded-lg shadow-lg mb-6 overflow-hidden">
+							<div className="w-64 flex items-center justify-center bg-white bg-opacity-20 backdrop-blur-lg rounded-lg shadow-lg overflow-hidden">
 								<img src={photo} alt="Captured" className="max-w-full h-auto object-contain" />
 							</div>
-							<button className="mt-4 bg-primary text-primary px-6 py-2 rounded" onClick={() => setPhoto(null)}>
+							<button
+								className="mt-4 bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-semibold px-6 py-2 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 transform hover:scale-105"
+								onClick={() => setPhoto(null)}
+							>
 								Retake Photo
 							</button>
 						</div>
 					)
 					: (
-						<button className="bg-primary text-primary px-6 py-2 rounded" onClick={openCamera}>
+						<button
+							className="bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-semibold px-6 py-2 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 transform hover:scale-105"
+							onClick={openCamera}
+						>
 							Open Camera
 						</button>
 					)}
 
-				<Transition
-					show={isCameraOpen}
-					enter="transition-opacity duration-300"
-					enterFrom="opacity-0"
-					enterTo="opacity-100"
-					leave="transition-opacity duration-300"
-					leaveFrom="opacity-100"
-					leaveTo="opacity-0"
-				>
-					<div className="fixed inset-0 bg-black flex flex-col items-center justify-center">
+				{isCameraOpen && (
+					<div className="fixed inset-0 bg-black bg-opacity-70 backdrop-blur-md flex flex-col items-center justify-center transition-all duration-300">
 						<video ref={videoRef} className="w-full h-full object-cover"></video>
 
 						<div className="absolute bottom-10 flex gap-6">
-							<button className="bg-red-500 text-white px-6 py-2 rounded-lg" onClick={closeCamera}>
+							<button
+								className="bg-white text-gray-900 px-6 py-2 rounded-full shadow-md hover:bg-gray-100 transition-all"
+								onClick={closeCamera}
+							>
 								Cancel
 							</button>
-							<button className="bg-green-500 text-white px-6 py-2 rounded-lg" onClick={captureWebcamPhoto}>
+							<button
+								className="bg-green-500 text-white px-6 py-2 rounded-full shadow-md hover:bg-green-400 transition-all"
+								onClick={captureWebcamPhoto}
+							>
 								Snap Picture
 							</button>
 						</div>
 					</div>
-				</Transition>
-
+				)}
 				<canvas ref={canvasRef} className="hidden"></canvas>
 			</div>
 		</div>
