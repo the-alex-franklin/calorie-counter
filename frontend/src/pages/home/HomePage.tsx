@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { useThemeStore } from "../../data-stores/theme.ts";
 import { buildStyles, CircularProgressbar } from "react-circular-progressbar";
 import "react-circular-progressbar/dist/styles.css";
+import { foodApi } from "../../data-stores/api.ts";
 
 // Meal card component
 interface MealCardProps {
@@ -39,40 +40,56 @@ const MealCard = ({ title, calories, time, imageUrl }: MealCardProps) => {
 
 const HomePage = () => {
 	const { darkMode } = useThemeStore();
-	const [calories, setCalories] = useState(1200);
+	const [calories, setCalories] = useState(0);
 	const [dailyGoal] = useState(2000);
 	const [mealEntries, setMealEntries] = useState<Array<MealCardProps>>([]);
 	const [date, setDate] = useState(new Date());
+	const [isLoading, setIsLoading] = useState(false);
 
-	// Simulate data loading
+	// Load data from API
 	useEffect(() => {
-		// Mock data - in a real app, fetch this from your API
-		const mockMeals = [
-			{
-				title: "Breakfast Oatmeal",
-				calories: 320,
-				time: "8:30 AM",
-				imageUrl:
-					"https://images.unsplash.com/photo-1517673132405-a56a62b18caf?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8b2F0bWVhbHxlbnwwfHwwfHx8MA%3D%3D&auto=format&fit=crop&w=800&q=60",
-			},
-			{
-				title: "Grilled Chicken Salad",
-				calories: 450,
-				time: "12:45 PM",
-				imageUrl:
-					"https://images.unsplash.com/photo-1512621776951-a57141f2eefd?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8c2FsYWR8ZW58MHx8MHx8fDA%3D&auto=format&fit=crop&w=800&q=60",
-			},
-			{
-				title: "Afternoon Snack",
-				calories: 180,
-				time: "3:15 PM",
-				imageUrl:
-					"https://images.unsplash.com/photo-1541167760496-1628856ab772?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8OHx8YXBwbGV8ZW58MHx8MHx8fDA%3D&auto=format&fit=crop&w=800&q=60",
-			},
-		];
-
-		setMealEntries(mockMeals);
-	}, []);
+		const loadMeals = async () => {
+			setIsLoading(true);
+			try {
+				// Get today's entries
+				const entries = await foodApi.getFoodEntriesByDate(date);
+				
+				// Transform to meal entries format
+				const mealEntries = entries.map(entry => {
+					// Format time as "8:30 AM" from date
+					const entryTime = new Date(entry.timestamp);
+					const timeFormatted = entryTime.toLocaleTimeString('en-US', {
+						hour: 'numeric',
+						minute: '2-digit',
+						hour12: true
+					});
+					
+					return {
+						title: entry.name,
+						calories: entry.calories,
+						time: timeFormatted,
+						imageUrl: entry.imageUrl
+					};
+				});
+				
+				setMealEntries(mealEntries);
+				
+				// Calculate total calories for the day
+				const totalCalories = entries.reduce((sum, entry) => sum + entry.calories, 0);
+				setCalories(totalCalories);
+				
+			} catch (error) {
+				console.error("Error loading meal data:", error);
+				// If no data exists yet, show empty state
+				setMealEntries([]);
+				setCalories(0);
+			} finally {
+				setIsLoading(false);
+			}
+		};
+		
+		loadMeals();
+	}, [date]);
 
 	// Format date like "Monday, May 15"
 	const formattedDate = new Intl.DateTimeFormat("en-US", {
@@ -85,16 +102,41 @@ const HomePage = () => {
 	const remainingCalories = dailyGoal - calories;
 	const percentCalories = (calories / dailyGoal) * 100;
 
+	// Go to previous day
+	const goToPreviousDay = () => {
+		const prevDay = new Date(date);
+		prevDay.setDate(date.getDate() - 1);
+		setDate(prevDay);
+	};
+
+	// Go to next day (only up to current day)
+	const goToNextDay = () => {
+		const nextDay = new Date(date);
+		nextDay.setDate(date.getDate() + 1);
+		const today = new Date();
+		
+		// Don't allow navigating to future dates
+		if (nextDay <= today) {
+			setDate(nextDay);
+		}
+	};
+
 	return (
 		<div className="px-5 pt-4">
 			{/* Date selector with iOS-style design */}
 			<div className="flex justify-between items-center mb-6">
-				<button className={`p-2 rounded-full ${darkMode ? "bg-dark-secondary" : "bg-gray-100"}`}>
-					<span>⬅️</span>
+				<button 
+					className={`p-2 rounded-full ${darkMode ? "bg-dark-secondary" : "bg-gray-100"}`}
+					onClick={goToPreviousDay}
+				>
+					<span>←</span>
 				</button>
 				<h2 className="text-lg font-semibold">{formattedDate}</h2>
-				<button className={`p-2 rounded-full ${darkMode ? "bg-dark-secondary" : "bg-gray-100"}`}>
-					<span>➡️</span>
+				<button 
+					className={`p-2 rounded-full ${darkMode ? "bg-dark-secondary" : "bg-gray-100"}`}
+					onClick={goToNextDay}
+				>
+					<span>→</span>
 				</button>
 			</div>
 
@@ -156,17 +198,28 @@ const HomePage = () => {
 			{/* Meals section */}
 			<h3 className="text-xl font-semibold mb-4">Today's Meals</h3>
 
-			<div>
-				{mealEntries.map((meal, index) => (
-					<MealCard
-						key={index}
-						title={meal.title}
-						calories={meal.calories}
-						time={meal.time}
-						imageUrl={meal.imageUrl}
-					/>
-				))}
-			</div>
+			{isLoading ? (
+				<div className="flex justify-center py-8">
+					<div className="animate-spin h-8 w-8 border-4 border-blue-500 rounded-full border-t-transparent"></div>
+				</div>
+			) : mealEntries.length > 0 ? (
+				<div>
+					{mealEntries.map((meal, index) => (
+						<MealCard
+							key={index}
+							title={meal.title}
+							calories={meal.calories}
+							time={meal.time}
+							imageUrl={meal.imageUrl}
+						/>
+					))}
+				</div>
+			) : (
+				<div className={`p-8 rounded-2xl text-center ${darkMode ? "bg-dark-secondary" : "bg-gray-100"}`}>
+					<p className="text-gray-500">No meals recorded for this day</p>
+					<p className="text-sm text-gray-400 mt-2">Use the camera to add your meals</p>
+				</div>
+			)}
 		</div>
 	);
 };

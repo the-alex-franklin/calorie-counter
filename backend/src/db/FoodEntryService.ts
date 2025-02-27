@@ -35,9 +35,40 @@ export class FoodEntryService {
 
 	public async createFoodEntry(userId: string, data: FoodEntryCreate): Promise<FoodEntry> {
 		try {
+			// Validate userId
+			if (!userId || typeof userId !== 'string') {
+				throw new PlatformError("Invalid user ID", 400);
+			}
+			
+			// Validate data
+			if (!data || typeof data !== 'object') {
+				throw new PlatformError("Invalid food entry data", 400);
+			}
+			
+			// Check required fields
+			if (!data.name || typeof data.name !== 'string') {
+				throw new PlatformError("Food name is required", 400);
+			}
+			
+			if (typeof data.calories !== 'number' || isNaN(data.calories)) {
+				throw new PlatformError("Valid calories value is required", 400);
+			}
+			
+			if (!Array.isArray(data.ingredients)) {
+				throw new PlatformError("Ingredients must be an array", 400);
+			}
+			
+			// Convert userId to ObjectId safely
+			let userObjectId: ObjectId;
+			try {
+				userObjectId = new ObjectId(userId);
+			} catch (err) {
+				throw new PlatformError("Invalid user ID format", 400);
+			}
+			
 			const foodEntry = {
 				_id: new ObjectId(),
-				userId: new ObjectId(userId),
+				userId: userObjectId,
 				name: data.name,
 				calories: data.calories,
 				ingredients: data.ingredients,
@@ -49,26 +80,66 @@ export class FoodEntryService {
 			return foodEntry;
 		} catch (error) {
 			console.error("Error creating food entry:", error);
+			if (error instanceof PlatformError) {
+				throw error;
+			}
 			throw new PlatformError("Failed to create food entry", 500);
 		}
 	}
 
 	public async getFoodEntries(userId: string): Promise<FoodEntry[]> {
 		try {
+			// Handle invalid userId gracefully
+			if (!userId || typeof userId !== 'string') {
+				console.warn("Invalid userId provided to getFoodEntries:", userId);
+				return [];
+			}
+			
+			// Use a try-catch for the ObjectId conversion to handle invalid IDs
+			let userObjectId: ObjectId;
+			try {
+				userObjectId = new ObjectId(userId);
+			} catch (err) {
+				console.warn("Invalid ObjectId format for userId:", userId);
+				return [];
+			}
+			
 			const entries = await this.foodEntries
-				.find({ userId: new ObjectId(userId) })
+				.find({ userId: userObjectId })
 				.sort({ date: -1 })
 				.toArray();
 
-			return entries;
+			return entries || []; // Ensure we always return an array
 		} catch (error) {
 			console.error("Error getting food entries:", error);
-			throw new PlatformError("Failed to get food entries", 500);
+			// Return empty array instead of throwing to handle gracefully
+			return [];
 		}
 	}
 
 	public async getFoodEntriesByDate(userId: string, date: Date): Promise<FoodEntry[]> {
 		try {
+			// Handle invalid userId gracefully
+			if (!userId || typeof userId !== 'string') {
+				console.warn("Invalid userId provided to getFoodEntriesByDate:", userId);
+				return [];
+			}
+			
+			// Handle invalid date
+			if (!date || !(date instanceof Date) || isNaN(date.getTime())) {
+				console.warn("Invalid date provided to getFoodEntriesByDate:", date);
+				return [];
+			}
+			
+			// Use a try-catch for the ObjectId conversion to handle invalid IDs
+			let userObjectId: ObjectId;
+			try {
+				userObjectId = new ObjectId(userId);
+			} catch (err) {
+				console.warn("Invalid ObjectId format for userId:", userId);
+				return [];
+			}
+			
 			// Create start and end of the provided date
 			const startOfDay = new Date(date);
 			startOfDay.setHours(0, 0, 0, 0);
@@ -78,7 +149,7 @@ export class FoodEntryService {
 
 			const entries = await this.foodEntries
 				.find({
-					userId: new ObjectId(userId),
+					userId: userObjectId,
 					date: {
 						$gte: startOfDay,
 						$lte: endOfDay,
@@ -87,10 +158,11 @@ export class FoodEntryService {
 				.sort({ date: -1 })
 				.toArray();
 
-			return entries;
+			return entries || []; // Ensure we always return an array
 		} catch (error) {
 			console.error("Error getting food entries by date:", error);
-			throw new PlatformError("Failed to get food entries for the specified date", 500);
+			// Return empty array instead of throwing to handle gracefully
+			return [];
 		}
 	}
 }

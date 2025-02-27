@@ -4,26 +4,20 @@ import { Capacitor } from "@capacitor/core";
 import { Camera, CameraResultType } from "@capacitor/camera";
 import { useThemeStore } from "../../data-stores/theme.ts";
 import { Try } from "jsr:@2or3godzillas/fp-try";
-
-// Food analysis data type
-interface FoodAnalysis {
-  name: string;
-  calories: number;
-  ingredients: Array<{
-    name: string;
-    calories: number;
-    percentage: number;
-  }>;
-}
+import { foodApi, type FoodAnalysis, type FoodEntry } from "../../data-stores/api.ts";
+import { useNavigate } from "react-router-dom";
 
 const CameraPage = () => {
   const { darkMode } = useThemeStore();
   const [isCameraOpen, setIsCameraOpen] = useState(false);
   const [photo, setPhoto] = useState<string | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
   const [analysis, setAnalysis] = useState<FoodAnalysis | null>(null);
+  const [error, setError] = useState<string | null>(null);
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const navigate = useNavigate();
 
   // Open the camera on load if it's not a native platform
   useEffect(() => {
@@ -48,17 +42,18 @@ const CameraPage = () => {
     if (Capacitor.isNativePlatform()) {
       const capturedPhoto = await Try(() => (
         Camera.getPhoto({
-          resultType: CameraResultType.Uri,
+          resultType: CameraResultType.DataUrl,
           quality: 80,
         })
       ));
 
       if (capturedPhoto.failure) {
         console.error("Camera error:", capturedPhoto.error);
+        setError("Unable to access camera. Please check permissions.");
         return;
       }
 
-      setPhoto(capturedPhoto.data.webPath || null);
+      setPhoto(capturedPhoto.data.dataUrl || null);
     } else {
       setIsCameraOpen(true);
     }
@@ -76,6 +71,7 @@ const CameraPage = () => {
       videoRef.current.play();
     } catch (error) {
       console.error("Webcam error:", error);
+      setError("Unable to access webcam. Please check permissions.");
     }
   };
 
@@ -95,6 +91,7 @@ const CameraPage = () => {
       closeCamera();
     } catch (error) {
       console.error("Error capturing photo:", error);
+      setError("Failed to capture photo. Please try again.");
     }
   };
 
@@ -111,6 +108,7 @@ const CameraPage = () => {
   const resetPhoto = () => {
     setPhoto(null);
     setAnalysis(null);
+    setError(null);
     setIsCameraOpen(true);
   };
 
@@ -118,39 +116,95 @@ const CameraPage = () => {
     if (!photo) return;
 
     setIsAnalyzing(true);
+    setError(null);
+    
     try {
-      // Mock analysis - in a real app, this would be an API call
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      // Extract base64 data from DataURL
+      const base64Data = photo.split(',')[1];
       
-      setAnalysis({
-        name: "Grilled Chicken Salad",
-        calories: 420,
-        ingredients: [
-          { name: "Grilled Chicken", calories: 210, percentage: 50 },
-          { name: "Mixed Greens", calories: 40, percentage: 25 },
-          { name: "Tomatoes", calories: 30, percentage: 10 },
-          { name: "Olive Oil", calories: 120, percentage: 10 },
-          { name: "Cucumber", calories: 20, percentage: 5 }
-        ]
-      });
-
-    } catch (error) {
+      // Call the API to analyze the image
+      const analysisResult = await foodApi.analyzeImage(base64Data);
+      
+      // Check if we received a valid result
+      if (!analysisResult || !analysisResult.name || typeof analysisResult.calories !== 'number') {
+        throw new Error("Invalid analysis result returned from API");
+      }
+      
+      // Ensure ingredients array exists
+      if (!Array.isArray(analysisResult.ingredients)) {
+        analysisResult.ingredients = [];
+      }
+      
+      setAnalysis(analysisResult);
+    } catch (error: any) {
       console.error("Error analyzing photo:", error);
+      
+      // Try to extract meaningful error message if available
+      let errorMessage = "Failed to analyze image. Please try again or take another photo.";
+      
+      if (error.response?.data?.error) {
+        errorMessage = `Analysis failed: ${error.response.data.error}`;
+      } else if (error.message) {
+        errorMessage = `Analysis failed: ${error.message}`;
+      }
+      
+      setError(errorMessage);
     } finally {
       setIsAnalyzing(false);
     }
   };
 
-  const saveAnalysis = () => {
-    // In a real app, this would save to your database
-    alert("Analysis saved successfully!");
-    setPhoto(null);
-    setAnalysis(null);
+  const saveAnalysis = async () => {
+    if (!analysis) return;
+    
+    setIsSaving(true);
+    setError(null);
+    
+    try {
+      // Validate analysis data before saving
+      if (!analysis.name || typeof analysis.calories !== 'number' || !Array.isArray(analysis.ingredients)) {
+        throw new Error("Invalid food data. Please try analyzing again.");
+      }
+      
+      // Save the food entry using the API
+      const savedEntry = await foodApi.saveFoodEntry({
+        ...analysis,
+        imageUrl: photo || undefined
+      });
+      
+      // Verify we got a valid response with an ID
+      if (!savedEntry || !savedEntry.id) {
+        throw new Error("Invalid response from server when saving.");
+      }
+      
+      // Navigate to home page after saving
+      navigate('/dashboard', { replace: true });
+    } catch (error: any) {
+      console.error("Error saving food entry:", error);
+      
+      // Try to extract meaningful error message if available
+      let errorMessage = "Failed to save food entry. Please try again.";
+      
+      if (error.response?.data?.error) {
+        errorMessage = `Save failed: ${error.response.data.error}`;
+      } else if (error.message) {
+        errorMessage = `Save failed: ${error.message}`;
+      }
+      
+      setError(errorMessage);
+      setIsSaving(false);
+    }
   };
 
   return (
     <div className="px-5 pt-4 h-full">
       <h1 className="text-2xl font-bold mb-6">Food Scanner</h1>
+      
+      {error && (
+        <div className="mb-4 p-3 bg-red-100 text-red-700 rounded-lg">
+          {error}
+        </div>
+      )}
       
       {/* Camera experience */}
       {isCameraOpen ? (
@@ -193,7 +247,7 @@ const CameraPage = () => {
           {/* Analysis results */}
           {isAnalyzing ? (
             <div className="flex flex-col items-center justify-center p-6">
-              <div className="ios-spinner mb-4"></div>
+              <div className="animate-spin h-10 w-10 border-4 border-blue-500 rounded-full border-t-transparent mb-4"></div>
               <p>Analyzing your food...</p>
             </div>
           ) : analysis ? (
@@ -204,9 +258,12 @@ const CameraPage = () => {
                 <span className="text-2xl font-bold">{analysis.calories} cal</span>
                 <button 
                   onClick={saveAnalysis}
-                  className="px-5 py-2 bg-primary text-white rounded-full shadow-sm"
+                  disabled={isSaving}
+                  className={`px-5 py-2 bg-primary text-white rounded-full shadow-sm ${
+                    isSaving ? 'opacity-70' : ''
+                  }`}
                 >
-                  Save Entry
+                  {isSaving ? 'Saving...' : 'Save Entry'}
                 </button>
               </div>
               

@@ -72,6 +72,7 @@ const getApiClient = (): AxiosInstance => {
 
 			// If the error is unauthorized and we haven't tried to refresh yet
 			if (error.response?.status === 401 && originalRequest && !(originalRequest as any)._retry) {
+				console.log("refreshing tokens");
 				(originalRequest as any)._retry = true;
 
 				// Try to refresh the token
