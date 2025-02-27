@@ -1,18 +1,16 @@
 import { Hono } from "hono";
 import { z } from "zod";
-import { UserService } from "../db/UserService.ts";
+import { FoodEntryService } from "../db/FoodEntryService.ts";
 import { PlatformError } from "../errors/platform.error.ts";
-import { analyzeImage, type FoodEntryCreate, type FoodIngredient } from "../vision/vision-api.ts";
+import { analyzeImage } from "../vision/vision-api.ts";
 import type { JWT_Payload } from "../auth/auth.middleware.ts";
 
-export const foodRoutes = (userService: UserService) => {
+export const foodRoutes = (foodEntryService: FoodEntryService) => {
 	const router = new Hono<JWT_Payload>();
 
 	// Analyze food image
 	router.post("/analyze", async (c) => {
 		try {
-			const { id } = c.get("jwtPayload");
-
 			const body = await c.req.json();
 			const { image } = z.object({
 				image: z.string(),
@@ -46,7 +44,7 @@ export const foodRoutes = (userService: UserService) => {
 				imageUrl: z.string().optional(),
 			}).parse(body);
 
-			const foodEntry = await userService.createFoodEntry(id, data);
+			const foodEntry = await foodEntryService.createFoodEntry(id, data);
 			return c.json(foodEntry);
 		} catch (error) {
 			console.error("Error in /food-entries:", error);
@@ -61,7 +59,7 @@ export const foodRoutes = (userService: UserService) => {
 	router.get("/food-entries", async (c) => {
 		try {
 			const { id } = c.get("jwtPayload");
-			const foodEntries = await userService.getFoodEntries(id);
+			const foodEntries = await foodEntryService.getFoodEntries(id);
 			return c.json(foodEntries);
 		} catch (error) {
 			console.error("Error in GET /food-entries:", error);
@@ -83,7 +81,7 @@ export const foodRoutes = (userService: UserService) => {
 				throw new PlatformError("Invalid date format. Use YYYY-MM-DD.", 400);
 			}
 
-			const foodEntries = await userService.getFoodEntriesByDate(id, date);
+			const foodEntries = await foodEntryService.getFoodEntriesByDate(id, date);
 			return c.json(foodEntries);
 		} catch (error) {
 			console.error("Error in GET /food-entries/date:", error);

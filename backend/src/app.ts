@@ -3,6 +3,7 @@ import { authRoutes } from "./auth/auth.routes.ts";
 import { type JWT_Payload, jwtAuthMiddleware } from "./auth/auth.middleware.ts";
 import { cors } from "hono/cors";
 import { UserService } from "./db/UserService.ts";
+import { FoodEntryService } from "./db/FoodEntryService.ts";
 import { type Db, MongoClient } from "mongodb";
 import { PlatformError } from "./errors/platform.error.ts";
 import { foodRoutes } from "./food/food.routes.ts";
@@ -10,6 +11,7 @@ import { foodRoutes } from "./food/food.routes.ts";
 export function createApp({ db }: { db: Db }) {
 	let app: Hono | Hono<JWT_Payload> = new Hono();
 	const userService = UserService.getInstance(db);
+	const foodEntryService = FoodEntryService.getInstance(db);
 
 	app.use(cors({ origin: "*" }));
 
@@ -35,7 +37,7 @@ export function createApp({ db }: { db: Db }) {
 		return c.json(user);
 	});
 
-	app.route("/api", foodRoutes(userService));
+	app.route("/api", foodRoutes(foodEntryService));
 
 	return app;
 }
