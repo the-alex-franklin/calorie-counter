@@ -1,4 +1,4 @@
-import { Dashboard } from "./pages/Dashboard.tsx";
+import { App } from "./pages/App.tsx";
 import SignIn from "./pages/auth/SignIn.tsx";
 import SignUp from "./pages/auth/SignUp.tsx";
 import { BrowserRouter, Navigate, Route, Routes } from "npm:react-router-dom";
@@ -7,7 +7,7 @@ import { useThemeStore } from "./data-stores/theme.ts";
 import { useEffect } from "react";
 import { ProtectedRoute } from "./components/ProtectedRoute.tsx";
 
-export function App() {
+export function Router() {
 	const { isAuthenticated } = useAuthStore();
 	const { initTheme } = useThemeStore();
 
@@ -18,21 +18,21 @@ export function App() {
 	return (
 		<BrowserRouter>
 			<Routes>
-				<Route path="/sign-up" element={!isAuthenticated ? <SignUp /> : <Navigate to="/dashboard" />} />
-				<Route path="/sign-in" element={!isAuthenticated ? <SignIn /> : <Navigate to="/dashboard" />} />
+				<Route path="/sign-up" element={!isAuthenticated ? <SignUp /> : <Navigate to="/home" />} />
+				<Route path="/sign-in" element={!isAuthenticated ? <SignIn /> : <Navigate to="/home" />} />
 
 				<Route
-					path="/dashboard"
+					path="/home"
 					element={
 						<ProtectedRoute>
-							<Dashboard />
+							<App />
 						</ProtectedRoute>
 					}
 				/>
 
 				<Route
 					path="*"
-					element={isAuthenticated ? <Navigate to="/dashboard" replace /> : <Navigate to="/sign-in" replace />}
+					element={isAuthenticated ? <Navigate to="/home" replace /> : <Navigate to="/sign-in" replace />}
 				/>
 			</Routes>
 		</BrowserRouter>

@@ -1,4 +1,4 @@
-import { useThemeStore } from "../data-stores/theme.ts";
+import { useThemeStore } from "../../../data-stores/theme.ts";
 
 export type MealCardProps = {
 	title: string;
@@ -9,6 +9,7 @@ export type MealCardProps = {
 
 export const MealCard = ({ title, calories, time, imageUrl }: MealCardProps) => {
 	const { darkMode } = useThemeStore();
+
 	return (
 		<div
 			className={`flex items-center p-4 mb-3 rounded-2xl shadow-sm 

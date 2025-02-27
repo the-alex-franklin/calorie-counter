@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import { FormInput } from "../../components/FormInput.tsx";
-import { FormButton } from "../../components/FormButton.tsx";
+import { FormInput } from "./components/FormInput.tsx";
+import { FormButton } from "./components/FormButton.tsx";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuthStore } from "../../data-stores/auth.ts";
 import { Capacitor } from "@capacitor/core";
@@ -36,7 +36,7 @@ const SignUp = () => {
 
 	useEffect(() => {
 		if (useAuthStore.getState().isAuthenticated) {
-			navigate("/dashboard", { replace: true });
+			navigate("/home", { replace: true });
 		}
 	}, [navigate]);
 

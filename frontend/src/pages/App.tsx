@@ -9,7 +9,7 @@ import { HistoryPage } from "./history/HistoryPage.tsx";
 import { CameraPage } from "./camera/CameraPage.tsx";
 import { ProfilePage } from "./profile/ProfilePage.tsx";
 
-export const Dashboard = () => {
+export const App = () => {
 	const { darkMode } = useThemeStore();
 	const { user, logout } = useAuthStore();
 	const [isSideMenuOpen, setIsSideMenuOpen] = useState(false);

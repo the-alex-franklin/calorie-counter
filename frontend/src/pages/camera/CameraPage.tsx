@@ -139,7 +139,7 @@ export const CameraPage = ({ onClose }: CameraPageProps = {}) => {
 		if (onClose) {
 			onClose();
 		} else {
-			navigate("/dashboard", { replace: true });
+			navigate("/home", { replace: true });
 		}
 	};
 

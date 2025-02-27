@@ -1,6 +1,6 @@
 import { Hono } from "hono";
 import { authRoutes } from "./auth/auth.routes.ts";
-import { type JWT_Payload, jwtAuthMiddleware } from "./auth/auth.middleware.ts";
+import { jwtAuthMiddleware, type JWTPayload } from "./auth/auth.middleware.ts";
 import { cors } from "hono/cors";
 import { UserService } from "./db/UserService.ts";
 import { FoodEntryService } from "./db/FoodEntryService.ts";
@@ -9,7 +9,7 @@ import { PlatformError } from "./errors/platform.error.ts";
 import { foodRoutes } from "./food/food.routes.ts";
 
 export function createApp({ db }: { db: Db }) {
-	let app: Hono | Hono<JWT_Payload> = new Hono();
+	let app: Hono | Hono<JWTPayload> = new Hono();
 	const userService = UserService.getInstance(db);
 	const foodEntryService = FoodEntryService.getInstance(db);
 

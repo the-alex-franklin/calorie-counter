@@ -1,5 +1,5 @@
-import type { FoodEntry } from "../data-stores/api.ts";
-import { useThemeStore } from "../data-stores/theme.ts";
+import type { FoodEntry } from "../../../data-stores/api.ts";
+import { useThemeStore } from "../../../data-stores/theme.ts";
 
 type DaySummaryProps = {
 	date: string;

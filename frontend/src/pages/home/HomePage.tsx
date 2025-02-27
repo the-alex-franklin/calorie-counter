@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
 import { useThemeStore } from "../../data-stores/theme.ts";
 import { buildStyles, CircularProgressbar } from "react-circular-progressbar";
-import "react-circular-progressbar/dist/styles.css";
+
 import { foodApi } from "../../data-stores/api.ts";
-import { MealCard, type MealCardProps } from "../../components/MealCard.tsx";
+import { MealCard, type MealCardProps } from "./components/MealCard.tsx";
 import { Try } from "fp-try";
 
 export const HomePage = () => {

@@ -1,7 +1,7 @@
 import { useState } from "react";
-import { FoodSelector } from "../../components/FoodSelector.tsx";
-import { NutritionDetails } from "../../components/NutritionDetails.tsx";
-import type { NutritionFact } from "../../components/NutritionFactRow.tsx";
+import { FoodSelector } from "./components/FoodSelector.tsx";
+import { NutritionDetails } from "./components/NutritionDetails.tsx";
+import type { NutritionFact } from "./components/NutritionFactRow.tsx";
 
 type NutritionCategory = {
 	title: string;

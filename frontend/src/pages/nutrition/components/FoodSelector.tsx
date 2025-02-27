@@ -1,4 +1,4 @@
-import { useThemeStore } from "../data-stores/theme.ts";
+import { useThemeStore } from "../../../data-stores/theme.ts";
 
 export type FoodSelectorProps = {
 	options: string[];

@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useThemeStore } from "../../data-stores/theme.ts";
 import { foodApi, type FoodEntry } from "../../data-stores/api.ts";
-import { DaySummary } from "../../components/DaySummary.tsx";
+import { DaySummary } from "./components/DaySummary.tsx";
 import { Try } from "fp-try";
 
 type DaySummaryData = {

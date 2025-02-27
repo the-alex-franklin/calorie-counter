@@ -1,4 +1,4 @@
-import { useThemeStore } from "../data-stores/theme.ts";
+import { useThemeStore } from "../../../data-stores/theme.ts";
 import { NutrientBar } from "./NutrientBar.tsx";
 import { type NutritionFact, NutritionFactRow } from "./NutritionFactRow.tsx";
 

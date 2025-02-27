@@ -2,12 +2,11 @@ import { Hono } from "hono";
 import { z } from "zod";
 import { FoodEntryService } from "../db/FoodEntryService.ts";
 import { analyzeImage } from "../vision/vision-api.ts";
-import type { JWT_Payload } from "../auth/auth.middleware.ts";
+import type { JWTPayload } from "../auth/auth.middleware.ts";
 
 export const foodRoutes = (foodEntryService: FoodEntryService) => {
-	const router = new Hono<JWT_Payload>();
+	const router = new Hono<JWTPayload>();
 
-	// Analyze food image
 	router.post("/analyze", async (c) => {
 		const body = await c.req.json();
 		const { image } = z.object({
@@ -18,7 +17,6 @@ export const foodRoutes = (foodEntryService: FoodEntryService) => {
 		return c.json(foodAnalysis);
 	});
 
-	// Save food entry
 	router.post("/food-entries", async (c) => {
 		const { id } = c.get("jwtPayload");
 		const body = await c.req.json();
@@ -33,14 +31,12 @@ export const foodRoutes = (foodEntryService: FoodEntryService) => {
 		return c.json(foodEntries);
 	});
 
-	// Get all food entries
 	router.get("/previous-food-entries", async (c) => {
 		const { id } = c.get("jwtPayload");
 		const foodEntries = await foodEntryService.getPreviousFoodEntries(id);
 		return c.json(foodEntries);
 	});
 
-	// Get food entries by date
 	router.get("/food-entries/date/:date", async (c) => {
 		const { id } = c.get("jwtPayload");
 		const dateParam = c.req.param("date");
