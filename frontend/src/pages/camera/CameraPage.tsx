@@ -4,7 +4,7 @@ import { Capacitor } from "@capacitor/core";
 import { Camera, CameraResultType } from "@capacitor/camera";
 import { useThemeStore } from "../../data-stores/theme.ts";
 import { Try } from "jsr:@2or3godzillas/fp-try";
-import { type FoodAnalysis, foodApi } from "../../data-stores/api.ts";
+import { type FoodAnalysis, foodAnalysisSchema, foodApi } from "../../data-stores/api.ts";
 import { useNavigate } from "react-router-dom";
 import { z } from "zod";
 
@@ -196,18 +196,7 @@ const CameraPage = ({ onClose }: CameraPageProps = {}) => {
 			// Call the API to analyze the image
 			const analysisResult = await foodApi.analyzeImage(photo);
 
-			// Define and validate the analysis result schema
-			const analysisSchema = z.object({
-				name: z.string(),
-				calories: z.number(),
-				ingredients: z.array(z.object({
-					name: z.string(),
-					calories: z.number(),
-					percentage: z.number(),
-				})),
-			});
-
-			const parsedAnalysis = analysisSchema.safeParse(analysisResult);
+			const parsedAnalysis = foodAnalysisSchema.safeParse(analysisResult);
 			if (!parsedAnalysis.success) throw new Error("Invalid analysis result returned from API");
 
 			setAnalysis(parsedAnalysis.data);

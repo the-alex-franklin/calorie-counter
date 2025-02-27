@@ -10,18 +10,21 @@ export const foodIngredientSchema = z.object({
 	percentage: z.number(),
 });
 
-export const foodEntrySchema = z.object({
-	id: z.string(),
+export const foodAnalysisSchema = z.object({
 	name: z.string(),
 	calories: z.number(),
 	ingredients: z.array(foodIngredientSchema),
-	createdAt: z.string().transform((str) => new Date(str)),
 	imageUrl: z.string().optional(),
 });
 
+export const foodEntrySchema = foodAnalysisSchema.extend({
+	id: z.string(),
+	createdAt: z.string().transform((str) => new Date(str)),
+});
+
 export type FoodIngredient = z.infer<typeof foodIngredientSchema>;
+export type FoodAnalysis = z.infer<typeof foodAnalysisSchema>;
 export type FoodEntry = z.infer<typeof foodEntrySchema>;
-export type FoodAnalysis = Omit<FoodEntry, "id" | "timestamp">;
 
 // Token refresh function
 const refreshTokens = async (): Promise<boolean> => {
