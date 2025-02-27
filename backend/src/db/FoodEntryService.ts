@@ -97,12 +97,12 @@ export class FoodEntryService {
 		const entries = await this.foodEntries
 			.find({
 				userId: new ObjectId(validUserId),
-				date: {
+				createdAt: {
 					$gte: startOfDay,
 					$lte: endOfDay,
 				},
 			})
-			.sort({ date: -1 })
+			.sort({ createdAt: -1 })
 			.toArray();
 
 		return foodEntryReadSchema.array().parse(entries);
