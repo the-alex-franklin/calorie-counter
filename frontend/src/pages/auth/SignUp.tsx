@@ -4,9 +4,9 @@ import { FormButton } from "../../components/FormButton.tsx";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuthStore } from "../../data-stores/auth.ts";
 import { Capacitor } from "@capacitor/core";
+import { Try } from "fp-try";
 
 const SignUp = () => {
-	// Detect if we're on mobile platform
 	const isMobile = Capacitor.isNativePlatform();
 	const { signup } = useAuthStore();
 	const [email, setEmail] = useState<string>("");
@@ -16,10 +16,10 @@ const SignUp = () => {
 	const navigate = useNavigate();
 
 	const handleSubmit = async (e: React.FormEvent) => {
-		e.preventDefault(); // Prevent form submission
-		e.stopPropagation(); // Stop propagation on mobile
+		e.preventDefault();
+		e.stopPropagation();
 		if (e.nativeEvent) {
-			e.nativeEvent.stopImmediatePropagation(); // Ensure no bubbling
+			e.nativeEvent.stopImmediatePropagation();
 		}
 		await handleSignUp();
 	};
@@ -30,29 +30,16 @@ const SignUp = () => {
 		setIsLoading(true);
 		setError(null);
 
-		try {
-			await signup(email, password);
-			// After successful signup, explicitly navigate to dashboard with a delay
-			// to ensure the state is properly updated
-			setTimeout(() => {
-				navigate("/dashboard", { replace: true });
-			}, 100);
-		} catch (err) {
-			setError("Sign up failed. Please try a different email or try again later.");
-			console.error("Signup error:", err);
-			setIsLoading(false);
-		}
+		const signup_result = await Try(() => signup(email, password));
+		if (signup_result.failure) setIsLoading(false);
 	};
 
-	// Use useEffect to handle the case where user is already logged in
 	useEffect(() => {
-		// If user is already authenticated, redirect to dashboard
 		if (useAuthStore.getState().isAuthenticated) {
 			navigate("/dashboard", { replace: true });
 		}
 	}, [navigate]);
 
-	// Handle input key events (for mobile)
 	const handleKeyDown = (e: React.KeyboardEvent) => {
 		if (e.key === "Enter") {
 			e.preventDefault();
@@ -67,7 +54,6 @@ const SignUp = () => {
 
 			{isMobile
 				? (
-					// Mobile optimized form - no form tag to prevent refresh
 					<div>
 						<FormInput
 							label="Email"
@@ -98,7 +84,6 @@ const SignUp = () => {
 					</div>
 				)
 				: (
-					// Web form with standard approach
 					<form onSubmit={handleSubmit} action="#" noValidate>
 						<FormInput
 							label="Email"

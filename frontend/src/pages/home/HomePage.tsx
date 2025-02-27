@@ -1,101 +1,56 @@
-// @deno-types="@types/react"
 import { useEffect, useState } from "react";
 import { useThemeStore } from "../../data-stores/theme.ts";
 import { buildStyles, CircularProgressbar } from "react-circular-progressbar";
 import "react-circular-progressbar/dist/styles.css";
 import { foodApi } from "../../data-stores/api.ts";
+import { MealCard, type MealCardProps } from "../../components/MealCard.tsx";
+import { Try } from "fp-try";
 
-// Meal card component
-interface MealCardProps {
-	title: string;
-	calories: number;
-	time: string;
-	imageUrl?: string;
-}
-
-const MealCard = ({ title, calories, time, imageUrl }: MealCardProps) => {
-	const { darkMode } = useThemeStore();
-	return (
-		<div
-			className={`flex items-center p-4 mb-3 rounded-2xl shadow-sm 
-      ${darkMode ? "bg-dark-secondary" : "bg-white"} 
-      border ${darkMode ? "border-gray-800" : "border-gray-100"}`}
-		>
-			{imageUrl && (
-				<div className="w-16 h-16 mr-4 rounded-xl overflow-hidden">
-					<img src={imageUrl} alt={title} className="w-full h-full object-cover" />
-				</div>
-			)}
-			<div className="flex-1">
-				<h3 className="font-medium text-lg">{title}</h3>
-				<p className={`text-sm ${darkMode ? "text-gray-400" : "text-gray-500"}`}>{time}</p>
-			</div>
-			<div className="text-right">
-				<p className="text-lg font-medium">{calories}</p>
-				<p className={`text-xs ${darkMode ? "text-gray-400" : "text-gray-500"}`}>calories</p>
-			</div>
-		</div>
-	);
-};
-
-const HomePage = () => {
+export const HomePage = () => {
 	const { darkMode } = useThemeStore();
 	const [calories, setCalories] = useState(0);
 	const [dailyGoal] = useState(2000);
 	const [mealEntries, setMealEntries] = useState<Array<MealCardProps>>([]);
 	const [isLoading, setIsLoading] = useState(false);
 
-	// Load data from API
 	useEffect(() => {
-		const loadMeals = async () => {
+		Try(async () => {
 			setIsLoading(true);
-			try {
-				// Get today's entries
-				const entries = await foodApi.getTodayFoodEntries();
+			const entries = await foodApi.getTodayFoodEntries();
 
-				// Transform to meal entries format
-				const mealEntries = entries.map((entry) => {
-					// Format time as "8:30 AM" from date
-					const entryTime = new Date(entry.createdAt);
-					const timeFormatted = entryTime.toLocaleTimeString("en-US", {
-						hour: "numeric",
-						minute: "2-digit",
-						hour12: true,
-					});
-
-					return {
-						title: entry.name,
-						calories: entry.calories,
-						time: timeFormatted,
-						imageUrl: entry.imageUrl,
-					};
+			const mealEntries = entries.map((entry) => {
+				const entryTime = new Date(entry.createdAt);
+				const timeFormatted = entryTime.toLocaleTimeString("en-US", {
+					hour: "numeric",
+					minute: "2-digit",
+					hour12: true,
 				});
 
-				setMealEntries(mealEntries);
+				return {
+					title: entry.name,
+					calories: entry.calories,
+					time: timeFormatted,
+					imageUrl: entry.imageUrl,
+				};
+			});
 
-				// Calculate total calories for the day
-				const totalCalories = entries.reduce((sum, entry) => sum + entry.calories, 0);
-				setCalories(totalCalories);
-			} catch (error) {
-				console.error("Error loading meal data:", error);
-				// If no data exists yet, show empty state
-				setMealEntries([]);
-				setCalories(0);
-			} finally {
-				setIsLoading(false);
-			}
-		};
+			setMealEntries(mealEntries);
 
-		loadMeals();
+			const totalCalories = entries.reduce((sum, entry) => sum + entry.calories, 0);
+			setCalories(totalCalories);
+		}).catch((error) => {
+			setMealEntries([]);
+			setCalories(0);
+		}).finally(() => {
+			setIsLoading(false);
+		});
 	}, []);
 
-	// Calculate remaining calories
 	const remainingCalories = dailyGoal - calories;
 	const percentCalories = (calories / dailyGoal) * 100;
 
 	return (
 		<div className="px-5 pt-4">
-			{/* Calorie summary with iOS-style card */}
 			<div
 				className={`rounded-3xl p-6 mb-8 ${darkMode ? "bg-dark-secondary" : "bg-white"} shadow-sm
         border ${darkMode ? "border-gray-800" : "border-gray-100"}`}
@@ -116,7 +71,7 @@ const HomePage = () => {
 							styles={buildStyles({
 								textSize: "22px",
 								textColor: darkMode ? "#fff" : "#000",
-								pathColor: calories > dailyGoal ? "#FF3B30" : "#34C759", // iOS red or green
+								pathColor: calories > dailyGoal ? "#FF3B30" : "#34C759",
 								trailColor: darkMode ? "#333" : "#f5f5f7",
 							})}
 						/>
@@ -150,7 +105,6 @@ const HomePage = () => {
 				</div>
 			</div>
 
-			{/* Meals section */}
 			<h3 className="text-xl font-semibold mb-4">Today's Meals</h3>
 
 			{isLoading
@@ -182,5 +136,3 @@ const HomePage = () => {
 		</div>
 	);
 };
-
-export default HomePage;

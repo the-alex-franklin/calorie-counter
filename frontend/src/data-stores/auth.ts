@@ -3,6 +3,7 @@ import { persist } from "zustand/middleware";
 import { z } from "zod";
 import axios from "axios";
 import { env } from "../env.ts";
+import { Try } from "fp-try";
 
 type User = {
 	id: string;
@@ -68,9 +69,9 @@ export const useAuthStore = create<AuthState>()(
 				set({ user, accessToken, refreshToken, isAuthenticated: true });
 			},
 			refreshTokens: async () => {
-				try {
-					const { refreshToken, user } = get();
-					if (!refreshToken) return false;
+				const refresh_result = await Try(async () => {
+					const { refreshToken } = get();
+					if (!refreshToken) return;
 
 					const { data } = await axios.post(`${env.API_URL}/token-refresh`, { refreshToken });
 
@@ -79,13 +80,15 @@ export const useAuthStore = create<AuthState>()(
 						refreshToken: z.string(),
 					}).parse(data);
 
-					set({ ...tokens, user, isAuthenticated: true });
-					return true;
-				} catch (error) {
-					// If refresh fails, log out
+					set({ ...tokens, isAuthenticated: true });
+				});
+
+				if (refresh_result.failure) {
 					get().logout();
 					return false;
 				}
+
+				return true;
 			},
 			logout: () => {
 				set({
@@ -99,7 +102,7 @@ export const useAuthStore = create<AuthState>()(
 		}),
 		{
 			name: "auth-storage",
-			// Add a state hydration handler to correctly set isAuthenticated
+
 			onRehydrateStorage: () => (state) => {
 				if (state && state.user && state.accessToken) {
 					state.isAuthenticated = true;

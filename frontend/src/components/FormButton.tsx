@@ -1,4 +1,3 @@
-// @deno-types="@types/react"
 import React from "react";
 
 type FormButtonProps = React.DetailedHTMLProps<React.ButtonHTMLAttributes<HTMLButtonElement>, HTMLButtonElement> & {

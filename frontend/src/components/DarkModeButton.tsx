@@ -1,6 +1,6 @@
 import { useThemeStore } from "../data-stores/theme.ts";
 
-export default function DarkModeButton() {
+export function DarkModeButton() {
 	const { darkMode, toggleTheme } = useThemeStore();
 
 	return (

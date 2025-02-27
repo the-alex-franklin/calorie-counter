@@ -1,4 +1,3 @@
-// @deno-types="@types/react"
 import React from "react";
 
 type FormInputProps = React.DetailedHTMLProps<React.InputHTMLAttributes<HTMLInputElement>, HTMLInputElement> & {

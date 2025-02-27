@@ -1,4 +1,3 @@
-// @deno-types="@types/react"
 import { useState } from "react";
 import { useAuthStore } from "../data-stores/auth.ts";
 import { useThemeStore } from "../data-stores/theme.ts";
