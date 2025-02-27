@@ -57,7 +57,7 @@ const HomePage = () => {
 				// Transform to meal entries format
 				const mealEntries = entries.map((entry) => {
 					// Format time as "8:30 AM" from date
-					const entryTime = new Date(entry.timestamp);
+					const entryTime = new Date(entry.createdAt);
 					const timeFormatted = entryTime.toLocaleTimeString("en-US", {
 						hour: "numeric",
 						minute: "2-digit",

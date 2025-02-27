@@ -117,7 +117,7 @@ const DaySummary = (
 								<div className="space-y-2">
 									{entries.map((entry, idx) => {
 										// Format time as "8:30 AM" from date
-										const entryTime = new Date(entry.timestamp);
+										const entryTime = new Date(entry.createdAt);
 										const timeFormatted = entryTime.toLocaleTimeString("en-US", {
 											hour: "numeric",
 											minute: "2-digit",
@@ -217,7 +217,7 @@ const HistoryPage = ({ isEmbedded = false }: HistoryPageProps) => {
 
 				// Group entries by day
 				allEntries.forEach((entry) => {
-					const entryDate = new Date(entry.timestamp);
+					const entryDate = new Date(entry.createdAt);
 					const dateString = entryDate.toISOString().split("T")[0]!; // Format: YYYY-MM-DD
 
 					if (!entriesByDate.has(dateString)) {
@@ -445,7 +445,7 @@ const HistoryPage = ({ isEmbedded = false }: HistoryPageProps) => {
 									<div>
 										<h4 className="text-lg font-semibold">{entry.name}</h4>
 										<p className={`text-sm ${darkMode ? "text-gray-400" : "text-gray-500"}`}>
-											{new Date(entry.timestamp).toLocaleString()}
+											{new Date(entry.createdAt).toLocaleString()}
 										</p>
 									</div>
 								</div>

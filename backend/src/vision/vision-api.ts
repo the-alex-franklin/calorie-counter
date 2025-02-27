@@ -28,7 +28,7 @@ export async function analyzeImage(image: string): Promise<FoodEntryBase> {
 								Err on the large and unhealthy side, as these are American food portions.
 								Identify its main ingredients and their approximate calories.
 								Format your response as JSON only, with no explanation.
-								The JSON should have the format: {"name": "Food Name", "calories": 123, "ingredients": [{"name": "Ingredient 1", "calories": 100, "percentage": 45}, {"name": "Ingredient 2", "calories": 23, "percentage": 55}]}.
+								The JSON should have this format without line returns: {"name": "Food Name", "calories": 123, "ingredients": [{"name": "Ingredient 1", "calories": 100, "percentage": 45}, {"name": "Ingredient 2", "calories": 23, "percentage": 55}]}.
 								If there is no food, just return: {"error": "No food detected"}.
 							`.replaceAll(/\n\s{2,}/g, " ").replace(/^ /, ""),
 						},
@@ -54,9 +54,10 @@ export async function analyzeImage(image: string): Promise<FoodEntryBase> {
 
 	const json = await response.json();
 
-	const parseResult = Try(() => foodEntryBaseSchema.parse(json.content[0]?.text));
+	const parseResult = Try(() => foodEntryBaseSchema.parse(JSON.parse(json.content[0]?.text)));
 	if (parseResult.success) return parseResult.data;
 
+	console.log(parseResult.error);
 	console.error("malformed JSON:", json);
 	throw new PlatformError("No Food Detected", 400);
 }

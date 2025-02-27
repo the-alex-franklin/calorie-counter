@@ -4,7 +4,6 @@ import { useThemeStore } from "../data-stores/theme.ts";
 import { useAuthStore } from "../data-stores/auth.ts";
 import DarkModeButton from "../components/DarkModeButton.tsx";
 import { Capacitor } from "@capacitor/core";
-import { Camera, CameraResultType } from "@capacitor/camera";
 
 // Import all required components directly
 import HomePage from "./home/HomePage.tsx";
@@ -40,44 +39,25 @@ export const Dashboard = () => {
 		};
 	}, [isSideMenuOpen]);
 
-	// Function to stop all active video streams
-	const stopAllVideoStreams = () => {
-		const videoElements = document.querySelectorAll("video");
-		videoElements.forEach((video) => {
-			if (video.srcObject) {
-				const stream = video.srcObject as MediaStream;
-				stream?.getTracks().forEach((track) => track.stop());
-				video.srcObject = null;
-			}
-		});
-	};
-
-	// Handle camera button click
-	const handleCameraClick = async () => {
-		if (Capacitor.isNativePlatform()) {
-			console.log("going");
-			try {
-				const perms = await Camera.checkPermissions();
-				console.log(perms);
-				const photo = await Camera.getPhoto({
-					resultType: CameraResultType.DataUrl,
-					quality: 90,
-					correctOrientation: true,
-				});
-
-				setActiveCameraMode(true);
-			} catch (error) {
-				console.error("Camera error:", error);
-			}
-		} else {
-			setActiveCameraMode(true);
+	// Toggle camera mode - make sure to explicitly close all camera streams when disabling
+	const toggleCameraMode = () => {
+		// If we're turning off the camera mode, make sure to stop all video streams first
+		if (activeCameraMode) {
+			// This will find and stop all active camera streams
+			document.querySelectorAll('video').forEach(video => {
+				if (video.srcObject) {
+					const stream = video.srcObject as MediaStream;
+					stream.getTracks().forEach(track => {
+						if (track.readyState === 'live') {
+							track.stop();
+						}
+					});
+					video.srcObject = null;
+				}
+			});
 		}
-	};
-
-	// Handle camera close
-	const handleCameraClose = () => {
-		stopAllVideoStreams();
-		setActiveCameraMode(false);
+		
+		setActiveCameraMode(!activeCameraMode);
 	};
 
 	return (
@@ -100,7 +80,7 @@ export const Dashboard = () => {
 
 			{/* Main content area - combines Home, History, and Nutrition in one page */}
 			<div className="h-[calc(100vh-70px)] overflow-auto pb-24 hide-scrollbar">
-				{activeCameraMode ? <CameraPage onClose={handleCameraClose} /> : (
+				{activeCameraMode ? <CameraPage onClose={toggleCameraMode} /> : (
 					<>
 						{/* Home page content at top */}
 						<HomePage />
@@ -116,7 +96,7 @@ export const Dashboard = () => {
 
 			{/* Floating camera/close button */}
 			<button
-				onClick={activeCameraMode ? handleCameraClose : handleCameraClick}
+				onClick={toggleCameraMode}
 				className={`fixed right-6 bottom-6 w-14 h-14 rounded-full 
 					${activeCameraMode ? "bg-red-500" : "bg-primary"} text-white 
 					flex items-center justify-center shadow-lg z-20 transition-all`}

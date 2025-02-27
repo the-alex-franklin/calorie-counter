@@ -15,7 +15,7 @@ export const foodEntrySchema = z.object({
 	name: z.string(),
 	calories: z.number(),
 	ingredients: z.array(foodIngredientSchema),
-	timestamp: z.string().transform((str) => new Date(str)),
+	createdAt: z.string().transform((str) => new Date(str)),
 	imageUrl: z.string().optional(),
 });
 
@@ -104,6 +104,7 @@ export const foodApi = {
 	saveFoodEntry: async (foodData: FoodAnalysis): Promise<FoodEntry> => {
 		const api = getApiClient();
 		const response = await api.post("/api/food-entries", foodData);
+		console.log(response.data);
 		return foodEntrySchema.parse(response.data);
 	},
 

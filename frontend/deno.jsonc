@@ -43,7 +43,8 @@
 			"exclude": [
 				"no-explicit-any",
 				"no-unused-vars",
-				"jsx-button-has-type"
+				"jsx-button-has-type",
+				"require-await"
 			]
 		}
 	}

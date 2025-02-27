@@ -24,99 +24,166 @@ const CameraPage = ({ onClose }: CameraPageProps = {}) => {
 	const canvasRef = useRef<HTMLCanvasElement | null>(null);
 	const navigate = useNavigate();
 
-	// Open the camera on load if it's not a native platform
+	// Determine if we're running on a native platform
+	const isNative = Capacitor.isNativePlatform();
+
+	// Function to force stop all camera streams
+	const stopAllVideoStreams = () => {
+		// Close the stream on our video element
+		if (videoRef.current?.srcObject) {
+			const stream = videoRef.current.srcObject as MediaStream;
+			stream.getTracks().forEach((track) => {
+				track.stop();
+			});
+			videoRef.current.srcObject = null;
+		}
+
+		// Also find any other potential video elements with active streams
+		document.querySelectorAll("video").forEach((video) => {
+			if (video.srcObject) {
+				const stream = video.srcObject as MediaStream;
+				stream.getTracks().forEach((track) => track.stop());
+				video.srcObject = null;
+			}
+		});
+	};
+
+	// Platform-specific camera handlers
+	const platformCamera = {
+		// Native platform (iOS/Android) camera handlers
+		native: {
+			open: async () => {
+				const capturedPhoto = await Try(() => (
+					Camera.getPhoto({
+						resultType: CameraResultType.DataUrl,
+						quality: 90,
+						correctOrientation: true,
+					})
+				));
+
+				if (capturedPhoto.failure) {
+					console.error("Camera error:", capturedPhoto.error);
+					setError("Unable to access camera. Please check permissions.");
+					return;
+				}
+
+				setPhoto(capturedPhoto.data.dataUrl || null);
+			},
+			close: () => {
+				// Nothing to close on native platforms as the camera UI is managed by the OS
+			},
+			capture: () => {
+				// Not needed for native as capture happens in the open function
+			},
+		},
+
+		// Web platform camera handlers
+		web: {
+			open: async () => {
+				setIsCameraOpen(true);
+				// Webcam is started in the useEffect when isCameraOpen becomes true
+			},
+			close: () => {
+				stopAllVideoStreams();
+				setIsCameraOpen(false);
+			},
+			capture: () => {
+				if (!videoRef.current || !canvasRef.current) return;
+
+				try {
+					const video = videoRef.current;
+					const canvas = canvasRef.current;
+					const ctx = canvas.getContext("2d");
+					if (!ctx) throw new Error("Failed to get canvas context");
+
+					canvas.width = video.videoWidth;
+					canvas.height = video.videoHeight;
+					ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+					setPhoto(canvas.toDataURL("image/jpeg", 0.9)); // Use JPEG with 90% quality
+					stopAllVideoStreams();
+					setIsCameraOpen(false);
+				} catch (error) {
+					console.error("Error capturing photo:", error);
+					setError("Failed to capture photo. Please try again.");
+				}
+			},
+		},
+	};
+
+	// Initialize camera
 	useEffect(() => {
-		if (!Capacitor.isNativePlatform()) {
+		// Auto-open webcam on web platforms
+		if (!isNative) {
 			setIsCameraOpen(true);
 		}
-	}, []);
 
-	useEffect(() => {
-		if (isCameraOpen) startWebcam();
+		// Cleanup when component unmounts
 		return () => {
-			if (videoRef.current) {
-				const stream = videoRef.current.srcObject as MediaStream;
-				if (stream) {
+			stopAllVideoStreams();
+		};
+	}, [isNative]);
+
+	// Handle webcam starting
+	useEffect(() => {
+		if (!isCameraOpen || isNative) return;
+
+		// Start webcam
+		const startWebcam = async () => {
+			if (!videoRef.current) return;
+
+			try {
+				// Stop any existing streams first
+				stopAllVideoStreams();
+
+				// Start a new stream
+				const stream = await navigator.mediaDevices.getUserMedia({
+					video: { facingMode: "environment" },
+				});
+
+				if (videoRef.current) { // Check again in case component unmounted during await
+					videoRef.current.srcObject = stream;
+					videoRef.current.play();
+				} else {
+					// If component unmounted, stop the stream we just created
 					stream.getTracks().forEach((track) => track.stop());
 				}
+			} catch (error) {
+				console.error("Webcam error:", error);
+				setError("Unable to access webcam. Please check permissions.");
 			}
 		};
-	}, [isCameraOpen]);
 
-	const openCamera = async () => {
-		if (Capacitor.isNativePlatform()) {
-			console.log("going!");
-			const capturedPhoto = await Try(() => (
-				Camera.getPhoto({
-					resultType: CameraResultType.DataUrl,
-					quality: 90,
-					correctOrientation: true,
-				})
-			));
+		startWebcam();
 
-			if (capturedPhoto.failure) {
-				console.error("Camera error:", capturedPhoto.error);
-				setError("Unable to access camera. Please check permissions.");
-				return;
-			}
+		// Cleanup when isCameraOpen becomes false
+		return () => {
+			stopAllVideoStreams();
+		};
+	}, [isCameraOpen, isNative]);
 
-			setPhoto(capturedPhoto.data.dataUrl || null);
-		} else {
-			setIsCameraOpen(true);
-		}
-	};
+	// Choose the appropriate camera handler based on platform
+	const camera = isNative ? platformCamera.native : platformCamera.web;
 
-	const startWebcam = async () => {
-		if (!videoRef.current) return;
-
-		try {
-			const stream = await navigator.mediaDevices.getUserMedia({
-				video: { facingMode: "environment" },
-			});
-
-			videoRef.current.srcObject = stream;
-			videoRef.current.play();
-		} catch (error) {
-			console.error("Webcam error:", error);
-			setError("Unable to access webcam. Please check permissions.");
-		}
-	};
-
-	const captureWebcamPhoto = () => {
-		if (!videoRef.current || !canvasRef.current) return;
-
-		try {
-			const video = videoRef.current;
-			const canvas = canvasRef.current;
-			const ctx = canvas.getContext("2d");
-			if (!ctx) throw new Error("Failed to get canvas context");
-
-			canvas.width = video.videoWidth;
-			canvas.height = video.videoHeight;
-			ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-			setPhoto(canvas.toDataURL("image/jpeg", 0.9)); // Use JPEG with 90% quality
-			closeCamera();
-		} catch (error) {
-			console.error("Error capturing photo:", error);
-			setError("Failed to capture photo. Please try again.");
-		}
-	};
-
-	const closeCamera = () => {
-		if (videoRef.current) {
-			const stream = videoRef.current.srcObject as MediaStream;
-			if (stream) {
-				stream.getTracks().forEach((track) => track.stop());
-			}
-		}
-		setIsCameraOpen(false);
-	};
-
+	// Reset photo and analysis state
 	const resetPhoto = () => {
 		setPhoto(null);
 		setAnalysis(null);
 		setError(null);
 		setIsCameraOpen(true);
+	};
+
+	// Handle closing the camera component (called by parent or when exiting camera)
+	const handleClose = () => {
+		// First, stop all video streams
+		stopAllVideoStreams();
+
+		// Then call the onClose prop if it exists
+		if (onClose) {
+			onClose();
+		} else {
+			// If no onClose prop, just navigate back to dashboard
+			navigate("/dashboard", { replace: true });
+		}
 	};
 
 	const analyzePhoto = async () => {
@@ -170,27 +237,31 @@ const CameraPage = ({ onClose }: CameraPageProps = {}) => {
 
 		try {
 			// Validate analysis data before saving
-			if (!analysis.name || typeof analysis.calories !== "number" || !Array.isArray(analysis.ingredients)) {
-				throw new Error("Invalid food data. Please try analyzing again.");
-			}
+			const analysisSchema = z.object({
+				name: z.string(),
+				calories: z.number(),
+				ingredients: z.array(z.object({
+					name: z.string(),
+					calories: z.number(),
+					percentage: z.number(),
+				})),
+			});
+
+			const parsedAnalysis = analysisSchema.parse(analysis, {
+				errorMap: () => ({ message: "Invalid food data. Please try analyzing again." }),
+			});
 
 			// Save the food entry using the API
 			const savedEntry = await foodApi.saveFoodEntry({
-				...analysis,
+				...parsedAnalysis,
 				imageUrl: photo || undefined,
 			});
 
 			// Verify we got a valid response with an ID
-			if (!savedEntry || !savedEntry.id) {
-				throw new Error("Invalid response from server when saving.");
-			}
+			if (!savedEntry.id) throw new Error("Invalid response from server when saving.");
 
-			// Navigate to home page after saving or call onClose if provided
-			if (onClose) {
-				onClose();
-			} else {
-				navigate("/dashboard", { replace: true });
-			}
+			// Close the camera component when done
+			handleClose();
 		} catch (error: any) {
 			console.error("Error saving food entry:", error);
 
@@ -219,7 +290,7 @@ const CameraPage = ({ onClose }: CameraPageProps = {}) => {
 			)}
 
 			{/* Camera experience */}
-			{isCameraOpen
+			{isCameraOpen && !isNative
 				? (
 					<div className="relative h-[calc(100vh-200px)] rounded-3xl overflow-hidden">
 						<video
@@ -251,7 +322,7 @@ const CameraPage = ({ onClose }: CameraPageProps = {}) => {
 
 						<div className="absolute bottom-6 left-0 right-0 flex justify-center">
 							<button
-								onClick={captureWebcamPhoto}
+								onClick={camera.capture}
 								className="w-16 h-16 bg-white rounded-full border-4 border-gray-300 shadow-lg"
 							>
 							</button>
@@ -282,8 +353,9 @@ const CameraPage = ({ onClose }: CameraPageProps = {}) => {
 							: analysis
 							? (
 								<div
-									className={`rounded-3xl p-6 ${darkMode ? "bg-dark-secondary" : "bg-white"} 
-              shadow-sm border ${darkMode ? "border-gray-800" : "border-gray-100"}`}
+									className={`rounded-3xl p-6 ${darkMode ? "bg-dark-secondary" : "bg-white"} shadow-sm border ${
+										darkMode ? "border-gray-800" : "border-gray-100"
+									}`}
 								>
 									<h2 className="text-xl font-bold mb-2">{analysis.name}</h2>
 									<div className="flex items-center justify-between mb-4">
@@ -350,7 +422,7 @@ const CameraPage = ({ onClose }: CameraPageProps = {}) => {
 							Take a photo of your food to get an instant calorie estimate
 						</p>
 						<button
-							onClick={openCamera}
+							onClick={camera.open}
 							className="px-8 py-3 bg-primary text-white rounded-full shadow-md"
 						>
 							Open Camera
