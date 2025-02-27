@@ -58,6 +58,7 @@ export class UserService {
 			email,
 			password: hashedPassword,
 			role: "user" as const,
+			createdAt: new Date(),
 		};
 
 		const { insertedId } = await this.users.insertOne(newUser);

@@ -30,14 +30,14 @@ export const generateRefreshToken = ({ id }: { id: string }): string => {
 export const decodeAccessToken = (token: string): JWTPayload => {
 	const decoded = Try(() => jwt.decode(token, env.JWT_SECRET) as JWTPayload);
 	if (decoded.failure) {
-		// if (decoded.exp < Math.floor(Date.now() / 1000)) throw new PlatformError("Unauthorized", 401);
 		if (decoded.error.message.startsWith("Token expired")) throw new PlatformError("Unauthorized", 401);
+		else throw decoded.error;
 	}
-	return (decoded as Success<JWTPayload>).data;
+
+	return decoded.data;
 };
 
 export const decodeRefreshToken = (token: string): JWTPayload => {
 	const decoded: JWTPayload = jwt.decode(token, env.REFRESH_SECRET);
-	if (decoded.exp < Math.floor(Date.now() / 1000)) throw new PlatformError("Unauthorized", 401);
 	return decoded;
 };

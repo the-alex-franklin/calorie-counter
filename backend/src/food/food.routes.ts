@@ -31,20 +31,9 @@ export const foodRoutes = (foodEntryService: FoodEntryService) => {
 	router.post("/food-entries", async (c) => {
 		try {
 			const { id } = c.get("jwtPayload");
-
 			const body = await c.req.json();
-			const data = z.object({
-				name: z.string(),
-				calories: z.number(),
-				ingredients: z.array(z.object({
-					name: z.string(),
-					calories: z.number(),
-					percentage: z.number(),
-				})),
-				imageUrl: z.string().optional(),
-			}).parse(body);
 
-			const foodEntry = await foodEntryService.createFoodEntry(id, data);
+			const foodEntry = await foodEntryService.createFoodEntry(id, body);
 			return c.json(foodEntry);
 		} catch (error) {
 			console.error("Error in /food-entries:", error);
@@ -75,11 +64,7 @@ export const foodRoutes = (foodEntryService: FoodEntryService) => {
 		try {
 			const { id } = c.get("jwtPayload");
 			const dateParam = c.req.param("date");
-			const date = new Date(dateParam);
-
-			if (isNaN(date.getTime())) {
-				throw new PlatformError("Invalid date format. Use YYYY-MM-DD.", 400);
-			}
+			const date = z.coerce.date().parse(dateParam);
 
 			const foodEntries = await foodEntryService.getFoodEntriesByDate(id, date);
 			return c.json(foodEntries);

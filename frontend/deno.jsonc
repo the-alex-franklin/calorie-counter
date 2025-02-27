@@ -43,7 +43,7 @@
 			"exclude": [
 				"no-explicit-any",
 				"no-unused-vars",
-				"no-local"
+				"jsx-button-has-type"
 			]
 		}
 	}
