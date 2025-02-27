@@ -12,38 +12,75 @@ export function Navbar() {
 
 	return (
 		<div>
-			<nav className="text-white p-4 flex items-center">
-				<button className="bg-inherit border-none text-primary ml-2 text-xl" onClick={toggleDrawer}>
-					☰
-				</button>
-			</nav>
-
-			<div
-				className={`fixed bg-primary text-primary top-0 left-0 z-1 h-full w-64 shadow-lg transform ${
-					isOpen ? "translate-x-0" : "-translate-x-full"
-				} transition-transform duration-300`}
-			>
-				<button className="absolute bg-primary text-primary border-none top-4 right-4 text-2xl" onClick={toggleDrawer}>
-					×
-				</button>
-				<div className="p-6 space-y-4">
-					<h2 className="text-lg font-bold">Settings</h2>
+			<nav className="ios-navbar z-10">
+				<div className="flex items-center">
 					<button
-						onClick={toggleTheme}
-						className="bg-primary text-primary p-2 rounded w-full text-left"
+						className="bg-transparent border-none text-xl"
+						onClick={toggleDrawer}
 					>
-						{darkMode ? "☀ Light Mode" : "🌙 Dark Mode"}
-					</button>
-					<button
-						onClick={logout}
-						className="bg-primary text-primary p-2 rounded w-full text-left"
-					>
-						Logout
+						<i className="i-heroicons-bars-3 text-primary">☰</i>
 					</button>
 				</div>
-			</div>
+				<h1 className="ios-title absolute left-1/2 transform -translate-x-1/2">Calorie Counter</h1>
+				<div>
+					<button className="bg-transparent border-none">
+						<i className="i-heroicons-camera text-primary"></i>
+					</button>
+				</div>
+			</nav>
 
-			{isOpen && <div className="fixed inset-0 bg-black/50" onClick={toggleDrawer}></div>}
+			{/* iOS-style sheet slide up */}
+			<div
+				className={`fixed inset-0 z-50 ${
+					isOpen ? "visible opacity-100" : "invisible opacity-0"
+				} transition-all duration-300`}
+			>
+				{/* Background overlay */}
+				<div
+					className="absolute inset-0 bg-black/30 backdrop-blur-sm"
+					onClick={toggleDrawer}
+				>
+				</div>
+
+				{/* Slide up sheet */}
+				<div
+					className={`absolute ios-sheet transform ${
+						isOpen ? "translate-y-0" : "translate-y-full"
+					} transition-transform duration-300 ease-out rounded-t-ios-lg`}
+				>
+					<div className="w-1/4 h-1 bg-gray-300 dark:bg-gray-600 rounded-full mx-auto mb-6"></div>
+
+					<h2 className="ios-heading mb-4">Settings</h2>
+
+					<div className="space-y-4">
+						<button
+							onClick={toggleTheme}
+							className="w-full ios-card flex items-center justify-between"
+						>
+							<span className="ios-text">{darkMode ? "Light Mode" : "Dark Mode"}</span>
+							<div
+								className={`w-12 h-6 rounded-ios-full relative ${
+									darkMode ? "bg-primary" : "bg-gray-300"
+								} transition-colors`}
+							>
+								<div
+									className={`absolute w-5 h-5 bg-white rounded-ios-full top-0.5 transition-all ${
+										darkMode ? "right-0.5" : "left-0.5"
+									}`}
+								>
+								</div>
+							</div>
+						</button>
+
+						<button
+							onClick={logout}
+							className="ios-btn-danger w-full mt-6"
+						>
+							Sign Out
+						</button>
+					</div>
+				</div>
+			</div>
 		</div>
 	);
 }

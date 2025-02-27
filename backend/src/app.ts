@@ -2,15 +2,20 @@ import { Hono } from "hono";
 import { authRoutes } from "./auth/auth.routes.ts";
 import { type JWT_Payload, jwtAuthMiddleware } from "./auth/auth.middleware.ts";
 import { cors } from "hono/cors";
-import { getUserService } from "./db/UserService.ts";
+import { UserService } from "./db/UserService.ts";
 import { type Db, MongoClient } from "mongodb";
 import { PlatformError } from "./errors/platform.error.ts";
+import { foodRoutes } from "./food/food.routes.ts";
 
 export function createApp({ db }: { db: Db }) {
 	let app: Hono | Hono<JWT_Payload> = new Hono();
-	const userService = getUserService(db);
+	const userService = UserService.getInstance(db);
 
 	app.use(cors({ origin: "*" }));
+
+	app.use("/", async (c) => {
+		console.log(`Method: ${c.req.method}, Route: ${c.req.url}, Time: ${new Date().toISOString()}`);
+	});
 
 	app.onError((err, c) => (
 		err instanceof PlatformError
@@ -29,6 +34,8 @@ export function createApp({ db }: { db: Db }) {
 		const user = await userService.getUserById(id);
 		return c.json(user);
 	});
+
+	app.route("/api", foodRoutes(userService));
 
 	return app;
 }

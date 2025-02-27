@@ -6,42 +6,67 @@ import { z } from "zod";
 type ThemeState = {
 	darkMode: boolean;
 	toggleTheme: () => void;
+	initTheme: () => void;
+};
+
+// Function to detect system dark mode preference
+const prefersDarkMode = () => {
+	if (typeof matchMedia === "undefined") return false;
+	return matchMedia && matchMedia("(prefers-color-scheme: dark)").matches;
 };
 
 export const useThemeStore = create<ThemeState>()(
 	persist(
 		(set, get) => ({
-			darkMode: (() => {
+			darkMode: prefersDarkMode(), // Default to system preference
+			toggleTheme: () => {
+				const newTheme = !(get().darkMode);
+				set({ darkMode: newTheme });
+				document.documentElement.classList.toggle("dark", newTheme);
+
+				// Apply proper background and text colors
+				document.body.classList.toggle("bg-dark", newTheme);
+				document.body.classList.toggle("bg-background", !newTheme);
+				document.body.classList.toggle("text-textDark", newTheme);
+				document.body.classList.toggle("text-text", !newTheme);
+			},
+			initTheme: () => {
 				const result = Try(() => {
 					const theme = localStorage.getItem("theme-storage");
 					if (!theme) throw new Error("No theme stored");
 
 					const json = JSON.parse(theme);
 
-					const { value } = z.object({
-						value: z.object({
-							state: z.object({
-								darkMode: z.boolean(),
-							}),
+					const { state } = z.object({
+						state: z.object({
+							darkMode: z.boolean(),
 						}),
 					}).parse(json);
 
-					return value.state.darkMode;
+					return state.darkMode;
 				});
 
-				if (result.failure) {
-					document.documentElement.classList.add("dark");
-					return true;
+				// Use system preference if no saved preference
+				let darkMode = prefersDarkMode();
+
+				// If we have a saved preference, use that
+				if (!result.failure) {
+					darkMode = result.data;
 				}
 
-				const darkMode = result.data;
-				if (darkMode) document.documentElement.classList.add("dark");
-				return darkMode;
-			})(),
-			toggleTheme: () => {
-				const newTheme = !(get().darkMode);
-				set({ darkMode: newTheme });
-				document.documentElement.classList.toggle("dark", newTheme);
+				// Update state
+				set({ darkMode });
+
+				// Apply theme to document
+				if (darkMode) {
+					document.documentElement.classList.add("dark");
+					document.body.classList.add("bg-dark", "text-textDark");
+					document.body.classList.remove("bg-background", "text-text");
+				} else {
+					document.documentElement.classList.remove("dark");
+					document.body.classList.add("bg-background", "text-text");
+					document.body.classList.remove("bg-dark", "text-textDark");
+				}
 			},
 		}),
 		{ name: "theme-storage" },

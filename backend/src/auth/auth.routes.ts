@@ -4,18 +4,7 @@ import { decodeRefreshToken, generateAccessToken, generateRefreshToken } from ".
 import type { UserService } from "../db/UserService.ts";
 
 const authRequestSchema = z.object({
-	email: z.string().email().refine((email) => {
-		/* email addresses have some weird rules for what's valid.
-		Most of the weirdness happens inside quotes,
-		so I'm just invalidating email addresses with quotes */
-		if (email.match('"')) return false;
-		return true;
-	}).transform((email) => {
-		/* here I'm removing periods before the @, because those are ignored by the DNS when sending an email */
-		const [name, domain] = email.toLowerCase().split("@") as [string, string];
-		const name_without_periods = name.replaceAll(/\./g, "");
-		return name_without_periods + "@" + domain;
-	}),
+	email: z.string().email().transform((email) => email.toLowerCase()),
 	password: z.string(),
 });
 

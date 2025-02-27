@@ -6,4 +6,6 @@ config({ export: true });
 export const env = z.object({
 	JWT_SECRET: z.string(),
 	REFRESH_SECRET: z.string(),
+	ANTHROPIC_API_KEY: z.string(),
+	OPENAI_API_KEY: z.string(),
 }).parse(Deno.env.toObject());

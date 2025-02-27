@@ -1,162 +1,162 @@
 // @deno-types="@types/react"
-import { useEffect, useRef, useState } from "react";
-import { Capacitor } from "@capacitor/core";
-import { Camera, CameraResultType } from "@capacitor/camera";
+import { useEffect, useState } from "react";
 import { useThemeStore } from "../data-stores/theme.ts";
+import { useAuthStore } from "../data-stores/auth.ts";
 import { Navbar } from "../components/Navbar.tsx";
-import { Try } from "jsr:@2or3godzillas/fp-try";
-import { buildStyles, CircularProgressbar } from "react-circular-progressbar";
-import "react-circular-progressbar/dist/styles.css";
 
+// Lazy loading the tabs for better performance
+const HomePage = () => import("./home/HomePage.tsx").then((module) => module.default);
+const HistoryPage = () => import("./history/HistoryPage.tsx").then((module) => module.default);
+const CameraPage = () => import("./camera/CameraPage.tsx").then((module) => module.default);
+const NutritionPage = () => import("./nutrition/NutritionPage.tsx").then((module) => module.default);
+const ProfilePage = () => import("./profile/ProfilePage.tsx").then((module) => module.default);
+
+// Tab interface for iOS style app
 export const Dashboard = () => {
 	const { darkMode } = useThemeStore();
-	const [isCameraOpen, setIsCameraOpen] = useState(false);
-	const [photo, setPhoto] = useState<string | null>(null);
-	const [calories, setCalories] = useState(0);
-	const videoRef = useRef<HTMLVideoElement | null>(null);
-	const canvasRef = useRef<HTMLCanvasElement | null>(null);
+	const { user } = useAuthStore();
+	const [activeTab, setActiveTab] = useState("home");
+	const [ActiveComponent, setActiveComponent] = useState<React.ComponentType | null>(null);
 
+	// Debug log to verify Dashboard is rendering with auth state
 	useEffect(() => {
-		if (isCameraOpen) startWebcam();
-	}, [isCameraOpen]);
+		console.log("Dashboard mounted. Auth state:", { user });
 
-	useEffect(() => {
-		fetchCalories();
+		// Initially load the home component
+		HomePage().then((Component) => {
+			setActiveComponent(() => Component);
+		});
 	}, []);
 
-	const openCamera = async () => {
-		if (Capacitor.isNativePlatform()) {
-			const capturedPhoto = await Try(() => (
-				Camera.getPhoto({
-					resultType: CameraResultType.Uri,
-					quality: 80,
-				})
-			));
-
-			if (capturedPhoto.failure) {
-				console.error("Camera error:", capturedPhoto.error);
-				return;
-			}
-
-			setPhoto(capturedPhoto.data.webPath || null);
-		} else {
-			setIsCameraOpen(true);
+	// Handle tab changes
+	useEffect(() => {
+		// Load the appropriate component based on active tab
+		switch (activeTab) {
+			case "home":
+				HomePage().then((Component) => setActiveComponent(() => Component));
+				break;
+			case "history":
+				HistoryPage().then((Component) => setActiveComponent(() => Component));
+				break;
+			case "camera":
+				CameraPage().then((Component) => setActiveComponent(() => Component));
+				break;
+			case "nutrition":
+				NutritionPage().then((Component) => setActiveComponent(() => Component));
+				break;
+			case "profile":
+				ProfilePage().then((Component) => setActiveComponent(() => Component));
+				break;
 		}
-	};
-
-	const startWebcam = async () => {
-		if (!videoRef.current) throw new Error("Video element not found");
-
-		const streamResult = await Try(() => navigator.mediaDevices.getUserMedia({ video: true }));
-		if (streamResult.failure) {
-			console.error("Webcam error:", streamResult.error);
-			return;
-		}
-
-		videoRef.current.srcObject = streamResult.data;
-		videoRef.current.play();
-	};
-
-	const captureWebcamPhoto = () => {
-		Try(() => {
-			if (!videoRef.current) throw new Error("videoRef does not exist");
-			if (!canvasRef.current) throw new Error("canvasRef does not exist");
-
-			const video = videoRef.current;
-			const canvas = canvasRef.current;
-			const ctx = canvas.getContext("2d");
-			if (!ctx) throw new Error("Failed to get canvas context");
-
-			canvas.width = video.videoWidth;
-			canvas.height = video.videoHeight;
-			ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-			setPhoto(canvas.toDataURL("image/png"));
-		});
-
-		closeCamera();
-	};
-
-	const closeCamera = () => {
-		if (videoRef.current) {
-			const stream = videoRef.current.srcObject as MediaStream;
-			stream.getTracks().forEach((track) => track.stop());
-		}
-		setIsCameraOpen(false);
-	};
-
-	const fetchCalories = async () => {
-		// Replace with actual API call
-		const fetchedCalories = await Promise.resolve(1200);
-		setCalories(fetchedCalories);
-	};
+	}, [activeTab]);
 
 	return (
 		<div
-			className={`h-full w-full ${darkMode ? "bg-gray-900 text-white" : "bg-gray-100 text-gray-900"} transition-all`}
+			className={`h-full w-full ${darkMode ? "bg-dark text-textDark" : "bg-background text-text"} transition-all`}
 		>
 			<Navbar />
 
-			<div className="flex flex-col items-center justify-center h-[calc(100vh-60px)] p-4 pb-16">
-				<h1 className="text-4xl font-bold tracking-wide mb-6">AI Calorie Counter</h1>
+			{/* Main content area */}
+			<div className="h-[calc(100vh-120px)] overflow-auto pb-20">
+				{ActiveComponent && <ActiveComponent />}
+			</div>
 
-				<div className="w-64 h-64 mb-6">
-					<CircularProgressbar
-						value={calories}
-						maxValue={2000} // Assuming 2000 is the daily goal
-						text={`${calories} kcal`}
-						styles={buildStyles({
-							textColor: darkMode ? "#fff" : "#000",
-							pathColor: calories > 2000 ? "red" : "green",
-							trailColor: darkMode ? "#333" : "#ddd",
-						})}
-					/>
-				</div>
+			{/* iOS-style tab bar */}
+			<div
+				className={`fixed bottom-0 left-0 right-0 h-16 ${darkMode ? "bg-dark-secondary" : "bg-white"} 
+				shadow-up flex items-center justify-around z-10 border-t ${darkMode ? "border-gray-800" : "border-gray-200"}`}
+			>
+				<TabButton
+					icon="i-heroicons-home"
+					label="Home"
+					isActive={activeTab === "home"}
+					onClick={() => setActiveTab("home")}
+				/>
 
-				{photo
-					? (
-						<div className="flex flex-col items-center">
-							<div className="w-64 flex items-center justify-center bg-white bg-opacity-20 backdrop-blur-lg rounded-lg shadow-lg overflow-hidden">
-								<img src={photo} alt="Captured" className="max-w-full h-auto object-contain" />
-							</div>
-							<button
-								className="mt-4 bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-semibold px-6 py-2 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 transform hover:scale-105"
-								onClick={() => setPhoto(null)}
-							>
-								Retake Photo
-							</button>
-						</div>
-					)
-					: (
-						<button
-							className="bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-semibold px-6 py-2 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 transform hover:scale-105"
-							onClick={openCamera}
-						>
-							Open Camera
-						</button>
-					)}
+				<TabButton
+					icon="i-heroicons-chart-bar"
+					label="History"
+					isActive={activeTab === "history"}
+					onClick={() => setActiveTab("history")}
+				/>
 
-				{isCameraOpen && (
-					<div className="fixed inset-0 bg-black bg-opacity-70 backdrop-blur-md flex flex-col items-center justify-center transition-all duration-300">
-						<video ref={videoRef} className="w-full h-full object-cover"></video>
+				<TabButton
+					icon="i-heroicons-camera"
+					label="Camera"
+					isActive={activeTab === "camera"}
+					onClick={() => setActiveTab("camera")}
+					isPrimary
+				/>
 
-						<div className="absolute bottom-10 flex gap-6">
-							<button
-								className="bg-white text-gray-900 px-6 py-2 rounded-full shadow-md hover:bg-gray-100 transition-all"
-								onClick={closeCamera}
-							>
-								Cancel
-							</button>
-							<button
-								className="bg-green-500 text-white px-6 py-2 rounded-full shadow-md hover:bg-green-400 transition-all"
-								onClick={captureWebcamPhoto}
-							>
-								Snap Picture
-							</button>
-						</div>
-					</div>
-				)}
-				<canvas ref={canvasRef} className="hidden"></canvas>
+				<TabButton
+					icon="i-heroicons-book-open"
+					label="Nutrition"
+					isActive={activeTab === "nutrition"}
+					onClick={() => setActiveTab("nutrition")}
+				/>
+
+				<TabButton
+					icon="i-heroicons-user"
+					label="Profile"
+					isActive={activeTab === "profile"}
+					onClick={() => setActiveTab("profile")}
+				/>
 			</div>
 		</div>
+	);
+};
+
+// Tab button component for iOS-style tab bar
+interface TabButtonProps {
+	icon: string;
+	label: string;
+	isActive: boolean;
+	onClick: () => void;
+	isPrimary?: boolean;
+}
+
+const TabButton = ({ icon, label, isActive, onClick, isPrimary }: TabButtonProps) => {
+	const { darkMode } = useThemeStore();
+
+	return (
+		<button
+			onClick={onClick}
+			className={`flex flex-col items-center justify-center w-16 h-full relative 
+				transition-colors focus:outline-none`}
+		>
+			{isPrimary
+				? (
+					<div
+						className={`absolute -top-5 w-12 h-12 rounded-full 
+					bg-primary flex items-center justify-center shadow-lg`}
+					>
+						<i className={`${icon} text-white text-xl`}>📷</i>
+					</div>
+				)
+				: (
+					<i
+						className={`${icon} ${
+							isActive ? "text-primary" : darkMode ? "text-gray-500" : "text-gray-400"
+						} text-xl mb-1`}
+					>
+						{icon === "i-heroicons-home"
+							? "🏠"
+							: icon === "i-heroicons-chart-bar"
+							? "📊"
+							: icon === "i-heroicons-user"
+							? "👤"
+							: icon === "i-heroicons-book-open"
+							? "📖"
+							: "📷"}
+					</i>
+				)}
+			{!isPrimary && (
+				<span
+					className={`text-xs ${isActive ? "text-primary font-medium" : darkMode ? "text-gray-500" : "text-gray-400"}`}
+				>
+					{label}
+				</span>
+			)}
+		</button>
 	);
 };

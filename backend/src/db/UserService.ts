@@ -1,4 +1,5 @@
-import { Db, ObjectId } from "mongodb";
+import { type Collection, type Db, ObjectId } from "mongodb";
+// @deno-types="npm:@types/bcryptjs"
 import bcryptjs from "bcryptjs";
 import { z } from "zod";
 import { PlatformError } from "../errors/platform.error.ts";
@@ -24,54 +25,54 @@ type UserDocument = {
 	role: "admin" | "user";
 };
 
-export type UserService = ReturnType<typeof createUserService>;
+export class UserService {
+	private static instance: UserService | null = null;
+	private users: Collection<UserDocument>;
 
-let instance: UserService | null = null;
-export function getUserService(db: Db): UserService {
-	instance ??= createUserService(db);
-	return instance;
-}
+	private constructor(db: Db) {
+		this.users = db.collection<UserDocument>("users");
+	}
 
-function createUserService(db: Db) {
-	const users = db.collection<UserDocument>("users");
+	public static getInstance(db: Db): UserService {
+		UserService.instance ??= new UserService(db);
+		return UserService.instance;
+	}
 
-	return {
-		async getUserById(id: string): Promise<UserRead> {
-			const user = await users.findOne({ _id: new ObjectId(id) });
-			return userReadSchema.parse(user);
-		},
+	public async getUserById(id: string): Promise<UserRead> {
+		const user = await this.users.findOne({ _id: new ObjectId(id) });
+		return userReadSchema.parse(user);
+	}
 
-		async getUserByEmail(email: string): Promise<UserRead> {
-			const user = await users.findOne({ email });
-			return userReadSchema.parse(user);
-		},
+	public async getUserByEmail(email: string): Promise<UserRead> {
+		const user = await this.users.findOne({ email });
+		return userReadSchema.parse(user);
+	}
 
-		async createUser({ email, password }: UserWrite): Promise<UserRead> {
-			const existingUser = await users.findOne({ email });
-			if (existingUser) throw new PlatformError("Email already exists", -1);
+	public async createUser({ email, password }: UserWrite): Promise<UserRead> {
+		const existingUser = await this.users.findOne({ email });
+		if (existingUser) throw new PlatformError("Email already exists", -1);
 
-			const hashedPassword = await bcryptjs.hash(password, 10);
-			const newUser = {
-				_id: new ObjectId(),
-				email,
-				password: hashedPassword,
-				role: "user" as const,
-			};
+		const hashedPassword = await bcryptjs.hash(password, 8);
+		const newUser = {
+			_id: new ObjectId(),
+			email,
+			password: hashedPassword,
+			role: "user" as const,
+		};
 
-			const result = await users.insertOne(newUser);
-			const user = await users.findOne({ _id: result.insertedId });
+		const { insertedId } = await this.users.insertOne(newUser);
+		const user = await this.users.findOne({ _id: insertedId });
 
-			return userReadSchema.parse(user);
-		},
+		return userReadSchema.parse(user);
+	}
 
-		async comparePassword({ email, password }: UserWrite): Promise<UserRead> {
-			const user = await users.findOne({ email });
-			if (!user) throw new PlatformError("Unauthorized", 401);
+	public async comparePassword({ email, password }: UserWrite): Promise<UserRead> {
+		const user = await this.users.findOne({ email });
+		if (!user) throw new PlatformError("Unauthorized", 401);
 
-			const isPasswordValid = await bcryptjs.compare(password, user.password);
-			if (!isPasswordValid) throw new PlatformError("Unauthorized", 401);
+		const isPasswordValid = await bcryptjs.compare(password, user.password);
+		if (!isPasswordValid) throw new PlatformError("Unauthorized", 401);
 
-			return userReadSchema.parse(user);
-		},
-	};
+		return userReadSchema.parse(user);
+	}
 }

@@ -42,7 +42,8 @@
 		"rules": {
 			"exclude": [
 				"no-explicit-any",
-				"no-unused-vars"
+				"no-unused-vars",
+				"no-local"
 			]
 		}
 	}
