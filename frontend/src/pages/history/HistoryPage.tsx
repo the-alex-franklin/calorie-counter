@@ -188,7 +188,6 @@ const HistoryPage = ({ isEmbedded = false }: HistoryPageProps) => {
 
 	// For viewing meal details
 	const [selectedEntries, setSelectedEntries] = useState<FoodEntry[] | null>(null);
-	const navigate = useNavigate();
 
 	// Load data from API
 	useEffect(() => {
@@ -198,22 +197,10 @@ const HistoryPage = ({ isEmbedded = false }: HistoryPageProps) => {
 
 			try {
 				// Get all entries
-				const allEntries = await foodApi.getFoodEntries();
+				const allEntries = await foodApi.getPreviousFoodEntries();
 
 				// Group entries by date
 				const entriesByDate = new Map<string, FoodEntry[]>();
-
-				// Track the last 10 days (even if there are no entries)
-				const today = new Date();
-				const days: Set<string> = new Set();
-
-				// Add the last 10 days to the set of days
-				for (let i = 0; i < 10; i++) {
-					const date = new Date(today);
-					date.setDate(date.getDate() - i);
-					const dateString = date.toISOString().split("T")[0]!; // Format: YYYY-MM-DD
-					days.add(dateString);
-				}
 
 				// Group entries by day
 				allEntries.forEach((entry) => {
@@ -230,8 +217,7 @@ const HistoryPage = ({ isEmbedded = false }: HistoryPageProps) => {
 				// Create day summary data for each day
 				const summaries: DaySummaryData[] = [];
 
-				days.forEach((dateString) => {
-					const entries = entriesByDate.get(dateString) || [];
+				entriesByDate.forEach((entries, dateString) => {
 					const calories = entries.reduce((sum, entry) => sum + entry.calories, 0);
 
 					summaries.push({

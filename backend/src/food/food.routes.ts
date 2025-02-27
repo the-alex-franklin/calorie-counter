@@ -27,10 +27,16 @@ export const foodRoutes = (foodEntryService: FoodEntryService) => {
 		return c.json(foodEntry);
 	});
 
-	// Get all food entries
-	router.get("/food-entries", async (c) => {
+	router.get("/todays-food-entries", async (c) => {
 		const { id } = c.get("jwtPayload");
-		const foodEntries = await foodEntryService.getFoodEntries(id);
+		const foodEntries = await foodEntryService.getTodaysFoodEntries(id);
+		return c.json(foodEntries);
+	});
+
+	// Get all food entries
+	router.get("/previous-food-entries", async (c) => {
+		const { id } = c.get("jwtPayload");
+		const foodEntries = await foodEntryService.getPreviousFoodEntries(id);
 		return c.json(foodEntries);
 	});
 

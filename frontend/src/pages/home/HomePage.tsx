@@ -43,7 +43,6 @@ const HomePage = () => {
 	const [calories, setCalories] = useState(0);
 	const [dailyGoal] = useState(2000);
 	const [mealEntries, setMealEntries] = useState<Array<MealCardProps>>([]);
-	const [date, setDate] = useState(new Date());
 	const [isLoading, setIsLoading] = useState(false);
 
 	// Load data from API
@@ -52,7 +51,7 @@ const HomePage = () => {
 			setIsLoading(true);
 			try {
 				// Get today's entries
-				const entries = await foodApi.getFoodEntriesByDate(date);
+				const entries = await foodApi.getTodayFoodEntries();
 
 				// Transform to meal entries format
 				const mealEntries = entries.map((entry) => {
@@ -88,14 +87,7 @@ const HomePage = () => {
 		};
 
 		loadMeals();
-	}, [date]);
-
-	// Format date like "Monday, May 15"
-	const formattedDate = new Intl.DateTimeFormat("en-US", {
-		weekday: "long",
-		month: "long",
-		day: "numeric",
-	}).format(date);
+	}, []);
 
 	// Calculate remaining calories
 	const remainingCalories = dailyGoal - calories;

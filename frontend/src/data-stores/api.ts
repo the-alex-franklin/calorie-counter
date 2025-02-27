@@ -111,10 +111,16 @@ export const foodApi = {
 		return foodEntrySchema.parse(response.data);
 	},
 
-	// Get all food entries
-	getFoodEntries: async (): Promise<FoodEntry[]> => {
+	getTodayFoodEntries: async (): Promise<FoodEntry[]> => {
 		const api = getApiClient();
-		const response = await api.get("/api/food-entries");
+		const response = await api.get("/api/todays-food-entries");
+		return z.array(foodEntrySchema).parse(response.data);
+	},
+
+	// Get all food entries
+	getPreviousFoodEntries: async (): Promise<FoodEntry[]> => {
+		const api = getApiClient();
+		const response = await api.get("/api/previous-food-entries");
 		return z.array(foodEntrySchema).parse(response.data);
 	},
 

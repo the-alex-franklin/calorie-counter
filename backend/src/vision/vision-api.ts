@@ -46,18 +46,11 @@ export async function analyzeImage(image: string): Promise<FoodEntryBase> {
 		}),
 	});
 
-	if (!response.ok) {
-		const errorData = await response.json();
-		console.error("Claude API error:", errorData);
-		throw new PlatformError("Failed to analyze image with Claude", 500);
-	}
+	if (!response.ok) throw new PlatformError("Failed to analyze image with Claude", 500);
 
 	const json = await response.json();
 
 	const parseResult = Try(() => foodEntryBaseSchema.parse(JSON.parse(json.content[0]?.text)));
 	if (parseResult.success) return parseResult.data;
-
-	console.log(parseResult.error);
-	console.error("malformed JSON:", json);
 	throw new PlatformError("No Food Detected", 400);
 }
