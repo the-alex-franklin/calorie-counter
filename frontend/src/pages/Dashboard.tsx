@@ -55,7 +55,10 @@ export const Dashboard = () => {
 	// Handle camera button click
 	const handleCameraClick = async () => {
 		if (Capacitor.isNativePlatform()) {
+			console.log("going");
 			try {
+				const perms = await Camera.checkPermissions();
+				console.log(perms);
 				const photo = await Camera.getPhoto({
 					resultType: CameraResultType.DataUrl,
 					quality: 90,
@@ -80,7 +83,7 @@ export const Dashboard = () => {
 	return (
 		<div
 			className={`h-full w-full ${darkMode ? "bg-dark text-textDark" : "bg-background text-text"} transition-all ${
-				isMobile ? "mt-8" : ""
+				isMobile ? "mt-20" : ""
 			}`}
 		>
 			{/* Header with hamburger menu */}
@@ -146,24 +149,6 @@ export const Dashboard = () => {
 					{/* Menu items */}
 					<div className="p-6">
 						<ProfilePage isEmbedded />
-
-						{/* Dark mode toggle */}
-						<div className="flex items-center justify-between py-3 mb-2">
-							<span>Dark Mode</span>
-							<div
-								onClick={toggleTheme}
-								className={`w-12 h-6 rounded-full relative ${
-									darkMode ? "bg-primary" : "bg-gray-300"
-								} transition-colors cursor-pointer`}
-							>
-								<div
-									className={`absolute w-5 h-5 bg-white rounded-full top-0.5 transition-all ${
-										darkMode ? "right-0.5" : "left-0.5"
-									}`}
-								>
-								</div>
-							</div>
-						</div>
 
 						{/* Logout button */}
 						<button

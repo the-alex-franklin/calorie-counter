@@ -45,6 +45,7 @@ const CameraPage = ({ onClose }: CameraPageProps = {}) => {
 
 	const openCamera = async () => {
 		if (Capacitor.isNativePlatform()) {
+			console.log("going!");
 			const capturedPhoto = await Try(() => (
 				Camera.getPhoto({
 					resultType: CameraResultType.DataUrl,

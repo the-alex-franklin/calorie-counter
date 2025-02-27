@@ -155,6 +155,16 @@ input:focus, textarea:focus, select:focus {
   border: 1px solid var(--separator);
 }
 
+/* Ensure iOS dark mode works properly */
+.dark .ios-card {
+  background-color: var(--bg-secondary);
+}
+
+/* Fix for iOS dark mode compatibility */
+html.dark {
+  color-scheme: dark;
+}
+
 /* iOS Navigation Bar */
 .ios-navbar {
   display: flex;
@@ -329,17 +339,44 @@ input:focus, textarea:focus, select:focus {
   to { transform: translateY(0); opacity: 1; }
 }
 
+/* Dark mode class for explicitly setting variables */
+.dark {
+  --bg-primary: #1C1C1E;
+  --bg-secondary: #2C2C2E;
+  --text-primary: #FFFFFF;
+  --text-secondary: #8E8E93;
+  --separator: #38383A;
+  --system-fill: #48484A;
+  --system-background: #1C1C1E;
+  --background-elevated: #2C2C2E;
+}
+
 /* Dark mode backgrounds */
 .bg-dark {
   background-color: var(--bg-primary);
 }
 
 .bg-dark-secondary {
-  background-color: var(--bg-secondary);
+  background-color: var(--bg-secondary) !important;
 }
 
 .text-textDark {
   color: var(--text-primary);
+}
+
+/* App-specific card styles that work on both web and iOS */
+.app-card {
+  background-color: white;
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 16px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+  border: 1px solid #eee;
+}
+
+.dark .app-card {
+  background-color: var(--bg-secondary) !important;
+  border-color: #333 !important;
 }
 
 /* iOS-style segmented control */
