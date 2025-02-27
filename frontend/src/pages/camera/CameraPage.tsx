@@ -48,7 +48,9 @@ const CameraPage = ({ onClose }: CameraPageProps = {}) => {
 			const capturedPhoto = await Try(() => (
 				Camera.getPhoto({
 					resultType: CameraResultType.DataUrl,
-					quality: 80,
+					quality: 90,
+					correctOrientation: true,
+					format: "jpeg" // Explicitly use JPEG format
 				})
 			));
 
@@ -92,7 +94,7 @@ const CameraPage = ({ onClose }: CameraPageProps = {}) => {
 			canvas.width = video.videoWidth;
 			canvas.height = video.videoHeight;
 			ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-			setPhoto(canvas.toDataURL("image/png"));
+			setPhoto(canvas.toDataURL("image/jpeg", 0.9)); // Use JPEG with 90% quality
 			closeCamera();
 		} catch (error) {
 			console.error("Error capturing photo:", error);

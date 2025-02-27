@@ -39,6 +39,18 @@ export const Dashboard = () => {
 		};
 	}, [isSideMenuOpen]);
 
+	// Function to stop all active video streams
+	const stopAllVideoStreams = () => {
+		const videoElements = document.querySelectorAll("video");
+		videoElements.forEach((video) => {
+			if (video.srcObject) {
+				const stream = video.srcObject as MediaStream;
+				stream?.getTracks().forEach((track) => track.stop());
+				video.srcObject = null;
+			}
+		});
+	};
+
 	// Handle camera button click
 	const handleCameraClick = async () => {
 		if (Capacitor.isNativePlatform()) {
@@ -55,6 +67,12 @@ export const Dashboard = () => {
 		} else {
 			setActiveCameraMode(true);
 		}
+	};
+
+	// Handle camera close
+	const handleCameraClose = () => {
+		stopAllVideoStreams();
+		setActiveCameraMode(false);
 	};
 
 	return (
@@ -74,8 +92,8 @@ export const Dashboard = () => {
 			</div>
 
 			{/* Main content area - combines Home, History, and Nutrition in one page */}
-			<div className="h-[calc(100vh-70px)] overflow-auto pb-24">
-				{activeCameraMode ? <CameraPage onClose={() => setActiveCameraMode(false)} /> : (
+			<div className="h-[calc(100vh-70px)] overflow-auto pb-24 hide-scrollbar">
+				{activeCameraMode ? <CameraPage onClose={handleCameraClose} /> : (
 					<>
 						{/* Home page content at top */}
 						<HomePage />
@@ -89,13 +107,14 @@ export const Dashboard = () => {
 				)}
 			</div>
 
-			{/* Floating camera button */}
+			{/* Floating camera/close button */}
 			<button
-				onClick={handleCameraClick}
-				className={`fixed right-6 bottom-6 w-14 h-14 rounded-full bg-primary text-white 
-					flex items-center justify-center shadow-lg z-20`}
+				onClick={activeCameraMode ? handleCameraClose : handleCameraClick}
+				className={`fixed right-6 bottom-6 w-14 h-14 rounded-full 
+					${activeCameraMode ? "bg-red-500" : "bg-primary"} text-white 
+					flex items-center justify-center shadow-lg z-20 transition-all`}
 			>
-				📷
+				{activeCameraMode ? <span className="text-xl font-bold">✕</span> : <span>📷</span>}
 			</button>
 
 			{/* Side Menu */}
@@ -106,7 +125,7 @@ export const Dashboard = () => {
 				<div
 					ref={sideMenuRef}
 					className={`absolute top-0 left-0 bottom-0 w-3/4 max-w-xs ${darkMode ? "bg-dark-secondary" : "bg-white"} 
-						shadow-lg transform transition-transform duration-300 ease-out
+						shadow-lg transform transition-transform duration-300 ease-out hide-scrollbar
 						${isSideMenuOpen ? "translate-x-0" : "-translate-x-full"}`}
 				>
 					{/* Profile section at top of side menu */}

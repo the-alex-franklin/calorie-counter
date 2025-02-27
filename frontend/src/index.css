@@ -206,10 +206,21 @@ input:focus, textarea:focus, select:focus {
   color: var(--text-secondary);
 }
 
-/* iOS style scrollbar */
+/* Hide scrollbar but maintain scrolling functionality */
+.hide-scrollbar {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;     /* Firefox */
+  overflow-y: auto;
+}
+
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;             /* Chrome, Safari and Opera */
+}
+
+/* iOS style scrollbar - only shown when not using hide-scrollbar class */
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 4px;
+  height: 4px;
 }
 
 ::-webkit-scrollbar-track {

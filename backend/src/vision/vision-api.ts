@@ -2,14 +2,9 @@ import { env } from "../env.ts";
 import { PlatformError } from "../errors/platform.error.ts";
 import { type FoodEntryBase, foodEntryBaseSchema } from "../db/FoodEntryService.ts";
 import { z } from "zod";
+import { Try } from "fp-try";
 
-const error_response_schema = z.object({
-	error: z.literal("No food detected"),
-});
-
-type ErrorResponse = z.infer<typeof error_response_schema>;
-
-export async function analyzeImage(image: string): Promise<FoodEntryBase | ErrorResponse> {
+export async function analyzeImage(image: string): Promise<FoodEntryBase> {
 	const base64Data = image.replace(/^data:image\/(png|jpeg|jpg);base64,/, "");
 
 	const response = await fetch("https://api.anthropic.com/v1/messages", {
@@ -41,7 +36,7 @@ export async function analyzeImage(image: string): Promise<FoodEntryBase | Error
 							type: "image",
 							source: {
 								type: "base64",
-								media_type: `image/jpeg`,
+								media_type: "image/jpeg", // We're standardizing on JPEG format
 								data: base64Data,
 							},
 						},
@@ -57,18 +52,11 @@ export async function analyzeImage(image: string): Promise<FoodEntryBase | Error
 		throw new PlatformError("Failed to analyze image with Claude", 500);
 	}
 
-	const data = await response.json();
-	const content = data.content[0].text;
+	const json = await response.json();
 
-	// Extract JSON from the response
-	const jsonMatch = content.match(/\{[\s\S]*\}/);
+	const parseResult = Try(() => foodEntryBaseSchema.parse(json.content[0]?.text));
+	if (parseResult.success) return parseResult.data;
 
-	if (!jsonMatch) {
-		throw new PlatformError("Failed to extract food analysis from Claude response", 500);
-	}
-
-	const parsedJson = JSON.parse(jsonMatch[0]);
-
-	// Validate response with the schema from FoodEntryService
-	return foodEntryBaseSchema.or(error_response_schema).parse(parsedJson);
+	console.error("malformed JSON:", json);
+	throw new PlatformError("No Food Detected", 400);
 }

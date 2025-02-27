@@ -427,7 +427,7 @@ const HistoryPage = ({ isEmbedded = false }: HistoryPageProps) => {
 					<div
 						className={`w-11/12 max-w-lg rounded-2xl p-5 ${
 							darkMode ? "bg-dark" : "bg-white"
-						} max-h-[80vh] overflow-auto`}
+						} max-h-[80vh] overflow-auto hide-scrollbar`}
 					>
 						<div className="flex justify-between items-center mb-4">
 							<h3 className="text-lg font-bold">Meal Details</h3>
