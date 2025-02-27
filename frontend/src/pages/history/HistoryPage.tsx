@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import { useThemeStore } from "../../data-stores/theme.ts";
 import { foodApi, type FoodEntry } from "../../data-stores/api.ts";
+import { useNavigate } from "react-router-dom";
 
 // Day summary component with iOS styling
 interface DaySummaryProps {
@@ -11,9 +12,12 @@ interface DaySummaryProps {
 	entries: FoodEntry[];
 	isExpanded?: boolean;
 	onToggle: () => void;
+	onViewDetails?: (entries: FoodEntry[]) => void;
 }
 
-const DaySummary = ({ date, calories, goalCalories, entries, isExpanded, onToggle }: DaySummaryProps) => {
+const DaySummary = (
+	{ date, calories, goalCalories, entries, isExpanded, onToggle, onViewDetails }: DaySummaryProps,
+) => {
 	const { darkMode } = useThemeStore();
 	const percentOfGoal = (calories / goalCalories) * 100;
 	const isOverGoal = calories > goalCalories;
@@ -39,7 +43,7 @@ const DaySummary = ({ date, calories, goalCalories, entries, isExpanded, onToggl
 				onClick={onToggle}
 			>
 				<div>
-					<h3 className="font-semibold">{formattedDate}</h3>
+					<h3 className="font-semibold text-sm whitespace-nowrap">{formattedDate}</h3>
 					<p className={`text-sm ${darkMode ? "text-gray-400" : "text-gray-600"}`}>
 						{isOverGoal ? "Exceeded goal by" : "Under goal by"} {Math.abs(goalCalories - calories)} cal
 					</p>
@@ -97,7 +101,17 @@ const DaySummary = ({ date, calories, goalCalories, entries, isExpanded, onToggl
 					</div>
 
 					<div className="mt-4">
-						<h4 className="font-medium mb-2">Meals</h4>
+						<div className="flex justify-between items-center mb-2">
+							<h4 className="font-medium">Meals</h4>
+							{entries.length > 0 && onViewDetails && (
+								<button
+									onClick={() => onViewDetails(entries)}
+									className="text-sm text-primary"
+								>
+									View Details
+								</button>
+							)}
+						</div>
 						{entries.length > 0
 							? (
 								<div className="space-y-2">
@@ -154,8 +168,13 @@ interface DaySummaryData {
 	entries: FoodEntry[];
 }
 
+// Interface for HistoryPage props
+interface HistoryPageProps {
+	isEmbedded?: boolean;
+}
+
 // Main history page component
-const HistoryPage = () => {
+const HistoryPage = ({ isEmbedded = false }: HistoryPageProps) => {
 	const { darkMode } = useThemeStore();
 	const [daysData, setDaysData] = useState<DaySummaryData[]>([]);
 	const [expandedDay, setExpandedDay] = useState<string | null>(null);
@@ -166,6 +185,10 @@ const HistoryPage = () => {
 		total: 0,
 		goal: 2000 * 7, // 7 days * 2000 calories daily goal
 	});
+
+	// For viewing meal details
+	const [selectedEntries, setSelectedEntries] = useState<FoodEntry[] | null>(null);
+	const navigate = useNavigate();
 
 	// Load data from API
 	useEffect(() => {
@@ -252,13 +275,56 @@ const HistoryPage = () => {
 		}
 	};
 
+	const handleViewDetails = (entries: FoodEntry[]) => {
+		setSelectedEntries(entries);
+	};
+
 	// Get current day of week (0 = Sunday, 1 = Monday, etc.)
 	const currentDayOfWeek = new Date().getDay();
 	// Convert to 0 = Monday, 6 = Sunday
 	const adjustedDayOfWeek = currentDayOfWeek === 0 ? 6 : currentDayOfWeek - 1;
 
+	// If we're in embedded mode, show a simplified view
+	if (isEmbedded) {
+		return (
+			<div>
+				{isLoading
+					? (
+						<div className="flex justify-center py-8">
+							<div className="animate-spin h-8 w-8 border-4 border-blue-500 rounded-full border-t-transparent"></div>
+						</div>
+					)
+					: daysData.length > 0
+					? (
+						<div>
+							{/* Only show the first 3 days in embedded mode */}
+							{daysData.slice(0, 3).map((day) => (
+								<DaySummary
+									key={day.date}
+									date={day.date}
+									calories={day.calories}
+									goalCalories={2000}
+									entries={day.entries}
+									isExpanded={expandedDay === day.date}
+									onToggle={() => toggleDayExpansion(day.date)}
+									onViewDetails={handleViewDetails}
+								/>
+							))}
+						</div>
+					)
+					: (
+						<div className={`p-6 rounded-2xl text-center ${darkMode ? "bg-dark-secondary" : "bg-gray-100"}`}>
+							<p className="text-gray-500">No meal history available</p>
+							<p className="text-sm text-gray-400 mt-2">Use the camera to add your first meal</p>
+						</div>
+					)}
+			</div>
+		);
+	}
+
 	return (
 		<div className="px-5 pt-4 pb-6">
+			{/* Navigation bar for full page */}
 			<div className="flex justify-between items-center mb-6">
 				<h1 className="text-2xl font-bold">History</h1>
 				<div className={`rounded-full p-2 ${darkMode ? "bg-dark-secondary" : "bg-gray-100"}`}>
@@ -341,6 +407,7 @@ const HistoryPage = () => {
 											entries={day.entries}
 											isExpanded={expandedDay === day.date}
 											onToggle={() => toggleDayExpansion(day.date)}
+											onViewDetails={handleViewDetails}
 										/>
 									))
 								)
@@ -353,6 +420,69 @@ const HistoryPage = () => {
 						</div>
 					</>
 				)}
+
+			{/* Meal details modal */}
+			{selectedEntries && (
+				<div className="fixed inset-0 z-50 bg-black bg-opacity-50 flex items-center justify-center">
+					<div
+						className={`w-11/12 max-w-lg rounded-2xl p-5 ${
+							darkMode ? "bg-dark" : "bg-white"
+						} max-h-[80vh] overflow-auto`}
+					>
+						<div className="flex justify-between items-center mb-4">
+							<h3 className="text-lg font-bold">Meal Details</h3>
+							<button onClick={() => setSelectedEntries(null)} className="text-xl">×</button>
+						</div>
+
+						{selectedEntries.map((entry, idx) => (
+							<div key={idx} className={`mb-4 p-4 rounded-xl ${darkMode ? "bg-dark-secondary" : "bg-gray-100"}`}>
+								<div className="flex items-center mb-3">
+									{entry.imageUrl && (
+										<div className="w-16 h-16 rounded-lg overflow-hidden mr-4">
+											<img src={entry.imageUrl} alt={entry.name} className="w-full h-full object-cover" />
+										</div>
+									)}
+									<div>
+										<h4 className="text-lg font-semibold">{entry.name}</h4>
+										<p className={`text-sm ${darkMode ? "text-gray-400" : "text-gray-500"}`}>
+											{new Date(entry.timestamp).toLocaleString()}
+										</p>
+									</div>
+								</div>
+
+								<div className="flex justify-between py-2 border-b border-gray-200 dark:border-gray-700">
+									<span>Total Calories</span>
+									<span className="font-medium">{entry.calories} cal</span>
+								</div>
+
+								{entry.ingredients && entry.ingredients.length > 0 && (
+									<div className="mt-3">
+										<h5 className="font-medium mb-2">Ingredients</h5>
+										{entry.ingredients.map((ingredient, i) => (
+											<div key={i} className="flex justify-between py-1 text-sm">
+												<span>{ingredient.name}</span>
+												<div>
+													<span className="mr-2">{ingredient.calories} cal</span>
+													<span className={`${darkMode ? "text-gray-400" : "text-gray-500"}`}>
+														({ingredient.percentage}%)
+													</span>
+												</div>
+											</div>
+										))}
+									</div>
+								)}
+							</div>
+						))}
+
+						<button
+							onClick={() => setSelectedEntries(null)}
+							className="w-full py-3 bg-primary text-white rounded-xl mt-2"
+						>
+							Close
+						</button>
+					</div>
+				</div>
+			)}
 		</div>
 	);
 };

@@ -61,8 +61,13 @@ const SettingItem = ({
   );
 };
 
+// Interface for ProfilePage props
+interface ProfilePageProps {
+  isEmbedded?: boolean;
+}
+
 // Profile page component
-const ProfilePage = () => {
+const ProfilePage = ({ isEmbedded = false }: ProfilePageProps) => {
   const { darkMode, toggleTheme } = useThemeStore();
   const { user, logout } = useAuthStore();
   const [dailyGoal, setDailyGoal] = useState(2000);
@@ -76,6 +81,108 @@ const ProfilePage = () => {
     setShowGoalModal(false);
   };
   
+  // If embedded mode, return just the core settings, no layout container
+  if (isEmbedded) {
+    return (
+      <>
+        <h2 className="text-lg font-semibold mb-3">Goals & Preferences</h2>
+      
+      {/* Settings sections */}
+      <div className="mb-6">
+        <SettingItem 
+          icon="🎯" 
+          label="Daily Calorie Goal" 
+          value={`${dailyGoal} calories`}
+          onClick={() => setShowGoalModal(true)}
+        />
+        
+        <SettingItem 
+          icon="🔔" 
+          label="Notifications" 
+          toggle 
+          isToggled={notifications}
+          onToggle={() => setNotifications(!notifications)}
+        />
+        
+        <SettingItem 
+          icon="🌓" 
+          label="Dark Mode" 
+          toggle
+          isToggled={darkMode}
+          onToggle={toggleTheme}
+        />
+      </div>
+        
+        {!isEmbedded && (
+          <>
+            <h2 className="text-lg font-semibold mb-3">App Settings</h2>
+            
+            <div className="mb-6">
+              <SettingItem 
+                icon="📊" 
+                label="Export Data" 
+                onClick={() => alert("This would export your data")}
+              />
+              
+              <SettingItem 
+                icon="📱" 
+                label="App Version" 
+                value="1.0.0"
+              />
+            </div>
+            
+            <div className="mt-8">
+              <SettingItem 
+                icon="🚪" 
+                label="Sign Out" 
+                danger
+                onClick={logout}
+              />
+            </div>
+          </>
+        )}
+        
+        {/* Calorie goal modal */}
+        {showGoalModal && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div className={`w-5/6 p-6 rounded-2xl shadow-lg 
+              ${darkMode ? 'bg-dark' : 'bg-white'}`}>
+              <h3 className="text-lg font-semibold mb-4">Set Daily Calorie Goal</h3>
+              
+              <div className="space-y-4 mb-6">
+                {[1500, 2000, 2500, 3000].map(goal => (
+                  <div 
+                    key={goal}
+                    onClick={() => handleGoalChange(goal)}
+                    className={`p-3 rounded-xl border flex items-center justify-between cursor-pointer
+                      ${dailyGoal === goal 
+                        ? 'border-primary bg-primary bg-opacity-10' 
+                        : darkMode ? 'border-gray-700' : 'border-gray-200'}`}
+                  >
+                    <span>{goal} calories</span>
+                    {dailyGoal === goal && (
+                      <span className="text-primary">✓</span>
+                    )}
+                  </div>
+                ))}
+              </div>
+              
+              <div className="flex justify-end">
+                <button
+                  onClick={() => setShowGoalModal(false)}
+                  className="px-5 py-2 text-primary font-medium"
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+      </>
+    );
+  }
+  
+  // Regular page view
   return (
     <div className="px-5 pt-4 pb-10">
       <h1 className="text-2xl font-bold mb-6">My Profile</h1>

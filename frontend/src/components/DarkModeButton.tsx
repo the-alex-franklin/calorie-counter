@@ -6,9 +6,9 @@ export default function DarkModeButton() {
 	return (
 		<button
 			onClick={toggleTheme}
-			className="px-4 py-2 rounded-full shadow-lg bg-gray-200 text-gray-900 dark:bg-gray-800 dark:text-white transition-all"
+			className="w-10 h-10 rounded-full flex items-center justify-center focus:outline-none"
 		>
-			{darkMode ? "☀️ Light Mode" : "🌙 Dark Mode"}
+			{darkMode ? "☀️" : "🌙"}
 		</button>
 	);
 }
