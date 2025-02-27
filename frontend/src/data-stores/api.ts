@@ -1,9 +1,7 @@
 import axios, { AxiosError, AxiosInstance } from "axios";
 import { useAuthStore } from "./auth.ts";
 import { z } from "zod";
-
-// Base API configuration
-const BASE_URL = "http://localhost:3000";
+import { env } from "../env.ts";
 
 // Food entry type definitions
 export const foodIngredientSchema = z.object({
@@ -31,7 +29,7 @@ const refreshTokens = async (): Promise<boolean> => {
 		const { refreshToken } = useAuthStore.getState();
 		if (!refreshToken) return false;
 
-		const response = await axios.post(`${BASE_URL}/token-refresh`, { refreshToken });
+		const response = await axios.post(`${env.API_URL}/token-refresh`, { refreshToken });
 		const { accessToken, refreshToken: newRefreshToken } = z.object({
 			accessToken: z.string(),
 			refreshToken: z.string(),
@@ -53,7 +51,7 @@ const getApiClient = (): AxiosInstance => {
 	const { accessToken } = useAuthStore.getState();
 
 	const api = axios.create({
-		baseURL: BASE_URL,
+		baseURL: env.API_URL,
 		headers: {
 			"Content-Type": "application/json",
 		},

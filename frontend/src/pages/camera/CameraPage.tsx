@@ -4,7 +4,7 @@ import { Capacitor } from "@capacitor/core";
 import { Camera, CameraResultType } from "@capacitor/camera";
 import { useThemeStore } from "../../data-stores/theme.ts";
 import { Try } from "jsr:@2or3godzillas/fp-try";
-import { type FoodAnalysis, foodApi, type FoodEntry } from "../../data-stores/api.ts";
+import { type FoodAnalysis, foodApi } from "../../data-stores/api.ts";
 import { useNavigate } from "react-router-dom";
 import { z } from "zod";
 
@@ -50,7 +50,6 @@ const CameraPage = ({ onClose }: CameraPageProps = {}) => {
 					resultType: CameraResultType.DataUrl,
 					quality: 90,
 					correctOrientation: true,
-					format: "jpeg" // Explicitly use JPEG format
 				})
 			));
 

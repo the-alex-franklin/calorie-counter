@@ -15,8 +15,9 @@ export function createApp({ db }: { db: Db }) {
 
 	app.use(cors({ origin: "*" }));
 
-	app.use("/", async (c) => {
-		console.log(`Method: ${c.req.method}, Route: ${c.req.url}, Time: ${new Date().toISOString()}`);
+	app.use(async (c, next) => {
+		console.log(`Method: ${c.req.method}, Route: ${c.req.url}`);
+		await next();
 	});
 
 	app.onError((err, c) => (

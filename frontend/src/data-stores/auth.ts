@@ -2,6 +2,7 @@ import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { z } from "zod";
 import axios from "axios";
+import { env } from "../env.ts";
 
 type User = {
 	id: string;
@@ -28,7 +29,7 @@ const authenticateUser = async (url: string, email: string, password: string) =>
 		refreshToken: z.string(),
 	}).parse(token_data);
 
-	const { data: user_data } = await axios.get("http://localhost:3000/me", {
+	const { data: user_data } = await axios.get(`${env.API_URL}/me`, {
 		headers: {
 			Authorization: `Bearer ${accessToken}`,
 		},
@@ -52,7 +53,7 @@ export const useAuthStore = create<AuthState>()(
 			isAuthenticated: false,
 			signup: async (email: string, password: string) => {
 				const { user, accessToken, refreshToken } = await authenticateUser(
-					"http://localhost:3000/sign-up",
+					`${env.API_URL}/sign-up`,
 					email,
 					password,
 				);
@@ -60,7 +61,7 @@ export const useAuthStore = create<AuthState>()(
 			},
 			login: async (email: string, password: string) => {
 				const { user, accessToken, refreshToken } = await authenticateUser(
-					"http://localhost:3000/sign-in",
+					`${env.API_URL}/sign-in`,
 					email,
 					password,
 				);
@@ -71,13 +72,13 @@ export const useAuthStore = create<AuthState>()(
 					const { refreshToken, user } = get();
 					if (!refreshToken) return false;
 
-					const { data } = await axios.post("http://localhost:3000/token-refresh", { refreshToken });
-					
+					const { data } = await axios.post(`${env.API_URL}/token-refresh`, { refreshToken });
+
 					const tokens = z.object({
 						accessToken: z.string(),
 						refreshToken: z.string(),
 					}).parse(data);
-					
+
 					set({ ...tokens, user, isAuthenticated: true });
 					return true;
 				} catch (error) {
@@ -91,19 +92,19 @@ export const useAuthStore = create<AuthState>()(
 					user: null,
 					accessToken: null,
 					refreshToken: null,
-					isAuthenticated: false
+					isAuthenticated: false,
 				});
 				localStorage.removeItem("auth-storage");
 			},
 		}),
-		{ 
+		{
 			name: "auth-storage",
 			// Add a state hydration handler to correctly set isAuthenticated
 			onRehydrateStorage: () => (state) => {
 				if (state && state.user && state.accessToken) {
 					state.isAuthenticated = true;
 				}
-			}
+			},
 		},
 	),
 );

@@ -4,6 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "ios": "cap sync ios && cap run ios --target=5B9F1EC6-CA07-4842-94B6-B0B3E43934CB",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],

@@ -19,6 +19,7 @@ export const Dashboard = () => {
 	const [isSideMenuOpen, setIsSideMenuOpen] = useState(false);
 	const [activeCameraMode, setActiveCameraMode] = useState(false);
 	const sideMenuRef = useRef<HTMLDivElement>(null);
+	const isMobile = Capacitor.isNativePlatform();
 
 	// Handle side menu toggle
 	const toggleSideMenu = () => setIsSideMenuOpen(!isSideMenuOpen);
@@ -57,7 +58,8 @@ export const Dashboard = () => {
 			try {
 				const photo = await Camera.getPhoto({
 					resultType: CameraResultType.DataUrl,
-					quality: 80,
+					quality: 90,
+					correctOrientation: true,
 				});
 
 				setActiveCameraMode(true);
@@ -77,7 +79,9 @@ export const Dashboard = () => {
 
 	return (
 		<div
-			className={`h-full w-full ${darkMode ? "bg-dark text-textDark" : "bg-background text-text"} transition-all`}
+			className={`h-full w-full ${darkMode ? "bg-dark text-textDark" : "bg-background text-text"} transition-all ${
+				isMobile ? "mt-8" : ""
+			}`}
 		>
 			{/* Header with hamburger menu */}
 			<div className={`flex items-center justify-between px-5 py-4 ${darkMode ? "bg-dark" : "bg-background"}`}>

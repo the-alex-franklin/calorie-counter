@@ -53,31 +53,30 @@ const HomePage = () => {
 			try {
 				// Get today's entries
 				const entries = await foodApi.getFoodEntriesByDate(date);
-				
+
 				// Transform to meal entries format
-				const mealEntries = entries.map(entry => {
+				const mealEntries = entries.map((entry) => {
 					// Format time as "8:30 AM" from date
 					const entryTime = new Date(entry.timestamp);
-					const timeFormatted = entryTime.toLocaleTimeString('en-US', {
-						hour: 'numeric',
-						minute: '2-digit',
-						hour12: true
+					const timeFormatted = entryTime.toLocaleTimeString("en-US", {
+						hour: "numeric",
+						minute: "2-digit",
+						hour12: true,
 					});
-					
+
 					return {
 						title: entry.name,
 						calories: entry.calories,
 						time: timeFormatted,
-						imageUrl: entry.imageUrl
+						imageUrl: entry.imageUrl,
 					};
 				});
-				
+
 				setMealEntries(mealEntries);
-				
+
 				// Calculate total calories for the day
 				const totalCalories = entries.reduce((sum, entry) => sum + entry.calories, 0);
 				setCalories(totalCalories);
-				
 			} catch (error) {
 				console.error("Error loading meal data:", error);
 				// If no data exists yet, show empty state
@@ -87,7 +86,7 @@ const HomePage = () => {
 				setIsLoading(false);
 			}
 		};
-		
+
 		loadMeals();
 	}, [date]);
 
@@ -102,44 +101,8 @@ const HomePage = () => {
 	const remainingCalories = dailyGoal - calories;
 	const percentCalories = (calories / dailyGoal) * 100;
 
-	// Go to previous day
-	const goToPreviousDay = () => {
-		const prevDay = new Date(date);
-		prevDay.setDate(date.getDate() - 1);
-		setDate(prevDay);
-	};
-
-	// Go to next day (only up to current day)
-	const goToNextDay = () => {
-		const nextDay = new Date(date);
-		nextDay.setDate(date.getDate() + 1);
-		const today = new Date();
-		
-		// Don't allow navigating to future dates
-		if (nextDay <= today) {
-			setDate(nextDay);
-		}
-	};
-
 	return (
 		<div className="px-5 pt-4">
-			{/* Date selector with iOS-style design */}
-			<div className="flex justify-between items-center mb-6">
-				<button 
-					className={`p-2 rounded-full ${darkMode ? "bg-dark-secondary" : "bg-gray-100"}`}
-					onClick={goToPreviousDay}
-				>
-					<span>←</span>
-				</button>
-				<h2 className="text-lg font-semibold">{formattedDate}</h2>
-				<button 
-					className={`p-2 rounded-full ${darkMode ? "bg-dark-secondary" : "bg-gray-100"}`}
-					onClick={goToNextDay}
-				>
-					<span>→</span>
-				</button>
-			</div>
-
 			{/* Calorie summary with iOS-style card */}
 			<div
 				className={`rounded-3xl p-6 mb-8 ${darkMode ? "bg-dark-secondary" : "bg-white"} shadow-sm
@@ -198,28 +161,32 @@ const HomePage = () => {
 			{/* Meals section */}
 			<h3 className="text-xl font-semibold mb-4">Today's Meals</h3>
 
-			{isLoading ? (
-				<div className="flex justify-center py-8">
-					<div className="animate-spin h-8 w-8 border-4 border-blue-500 rounded-full border-t-transparent"></div>
-				</div>
-			) : mealEntries.length > 0 ? (
-				<div>
-					{mealEntries.map((meal, index) => (
-						<MealCard
-							key={index}
-							title={meal.title}
-							calories={meal.calories}
-							time={meal.time}
-							imageUrl={meal.imageUrl}
-						/>
-					))}
-				</div>
-			) : (
-				<div className={`p-8 rounded-2xl text-center ${darkMode ? "bg-dark-secondary" : "bg-gray-100"}`}>
-					<p className="text-gray-500">No meals recorded for this day</p>
-					<p className="text-sm text-gray-400 mt-2">Use the camera to add your meals</p>
-				</div>
-			)}
+			{isLoading
+				? (
+					<div className="flex justify-center py-8">
+						<div className="animate-spin h-8 w-8 border-4 border-blue-500 rounded-full border-t-transparent"></div>
+					</div>
+				)
+				: mealEntries.length > 0
+				? (
+					<div>
+						{mealEntries.map((meal, index) => (
+							<MealCard
+								key={index}
+								title={meal.title}
+								calories={meal.calories}
+								time={meal.time}
+								imageUrl={meal.imageUrl}
+							/>
+						))}
+					</div>
+				)
+				: (
+					<div className={`p-8 rounded-2xl text-center ${darkMode ? "bg-dark-secondary" : "bg-gray-100"}`}>
+						<p className="text-gray-500">No meals recorded for this day</p>
+						<p className="text-sm text-gray-400 mt-2">Use the camera to add your meals</p>
+					</div>
+				)}
 		</div>
 	);
 };
