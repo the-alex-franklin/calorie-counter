@@ -1,17 +1,10 @@
 import { z } from "zod";
-import { setupTests } from "./setupTests.ts";
+import { setupTests } from "./utils/setupTests.ts";
+import { perf } from "./utils/perf.ts";
 import { foodIngredientSchema } from "../src/db/FoodEntryService.ts";
-import chalk from "npm:chalk";
+import chalk from "chalk";
 
 chalk.level = 2;
-
-async function perf(name: string, fn: () => Response | Promise<Response>) {
-	const start = performance.now();
-	const result = await fn();
-	const end = performance.now();
-	console.log(`${name}: ` + chalk.yellow(`${Number((end - start).toFixed(6))}ms`));
-	return result;
-}
 
 Deno.test("food entry service", async (t) => {
 	const { app, closeConnection } = await setupTests();
@@ -19,7 +12,6 @@ Deno.test("food entry service", async (t) => {
 	let accessToken: string;
 	let firstFoodEntryId: string;
 
-	// Setup: Create a user to test with
 	await t.step("setup - create user", async () => {
 		const response = await app.request("/sign-up", {
 			method: "POST",
@@ -39,7 +31,6 @@ Deno.test("food entry service", async (t) => {
 		accessToken = data.accessToken;
 	});
 
-	// Test: Unauthorized access
 	await t.step("unauthorized access to food entries", async () => {
 		const response = await perf("unauthorized", () => app.request("/api/food-entries"));
 
@@ -50,7 +41,6 @@ Deno.test("food entry service", async (t) => {
 		}).parse(data);
 	});
 
-	// Test: Create a food entry
 	await t.step("create food entry", async () => {
 		const testFoodEntry = {
 			name: "Test Salad",
@@ -91,7 +81,6 @@ Deno.test("food entry service", async (t) => {
 
 		const data = await response.json();
 
-		// Define response schema with expected values
 		const responseSchema = z.object({
 			id: z.string(),
 			userId: z.string(),
@@ -102,17 +91,14 @@ Deno.test("food entry service", async (t) => {
 			createdAt: z.string().transform((str) => new Date(str)),
 		});
 
-		// Validate response
 		const validatedData = responseSchema.parse(data);
 
-		// Save ID for later tests
 		firstFoodEntryId = validatedData.id;
 	});
 
-	// Test: Get all food entries
 	await t.step("get all food entries", async () => {
 		const response = await perf("get food entries", () =>
-			app.request("/api/food-entries", {
+			app.request("/api/todays-food-entries", {
 				headers: {
 					Authorization: `Bearer ${accessToken}`,
 				},
@@ -120,7 +106,6 @@ Deno.test("food entry service", async (t) => {
 
 		const data = await response.json();
 
-		// Define array response schema
 		const responseSchema = z.array(z.object({
 			id: z.string(),
 			userId: z.string(),
@@ -131,12 +116,8 @@ Deno.test("food entry service", async (t) => {
 			createdAt: z.string().transform((str) => new Date(str)),
 		}));
 
-		// Validate response
 		const validatedEntries = responseSchema.parse(data);
 
-		// Verify we have at least one entry and our created entry is in the list
-		// If array is empty or doesn't include our entry, parsing will pass but logic is wrong
-		z.array(z.unknown()).min(1).parse(validatedEntries);
 		z.array(z.object({ id: z.string() }))
 			.refine((entries) => entries.some((entry) => entry.id === firstFoodEntryId), {
 				message: "Created food entry not found in the list",
@@ -144,7 +125,6 @@ Deno.test("food entry service", async (t) => {
 			.parse(validatedEntries);
 	});
 
-	// Test: Create a second food entry for date testing
 	await t.step("create second food entry", async () => {
 		const testFoodEntry = {
 			name: "Test Burger",
@@ -184,7 +164,6 @@ Deno.test("food entry service", async (t) => {
 
 		const data = await response.json();
 
-		// Define response schema with expected values
 		const responseSchema = z.object({
 			id: z.string(),
 			userId: z.string(),
@@ -195,45 +174,13 @@ Deno.test("food entry service", async (t) => {
 			createdAt: z.string().transform((str) => new Date(str)),
 		});
 
-		// Validate response
 		responseSchema.parse(data);
 	});
 
-	// Test: Get food entries by date
-	await t.step("get food entries by today's date", async () => {
-		const today = new Date().toISOString().split("T")[0]; // Format: YYYY-MM-DD
-
-		const response = await perf("get food entries by date", () =>
-			app.request(`/api/food-entries/date/${today}`, {
-				headers: {
-					Authorization: `Bearer ${accessToken}`,
-				},
-			}));
-
-		const data = await response.json();
-
-		// Define array response schema
-		const responseSchema = z.array(z.object({
-			id: z.string(),
-			userId: z.string(),
-			name: z.string(),
-			calories: z.number(),
-			ingredients: z.array(foodIngredientSchema),
-			imageUrl: z.string().optional(),
-			createdAt: z.string().transform((str) => new Date(str)),
-		}));
-
-		// Validate response - don't check array length since date filtering
-		// may not return results in test environment
-		responseSchema.parse(data);
-	});
-
-	// Test: Validation errors
 	await t.step("validation error - invalid food entry", async () => {
 		const invalidFoodEntry = {
-			// Missing required 'name' field
-			calories: "not a number", // Wrong type
-			ingredients: "not an array", // Wrong type
+			calories: "not a number",
+			ingredients: "not an array",
 		};
 
 		const response = await perf("invalid food entry", () =>
@@ -245,7 +192,6 @@ Deno.test("food entry service", async (t) => {
 				body: JSON.stringify(invalidFoodEntry),
 			}));
 
-		// Should have an error status and error message
 		z.object({
 			status: z.number().gte(400),
 			ok: z.literal(false),
@@ -257,13 +203,10 @@ Deno.test("food entry service", async (t) => {
 		}).parse(data);
 	});
 
-	// Test: Food image analysis - valid food image
 	await t.step("analyze food image", async () => {
-		// Read the real image file
 		const imagePath = new URL("./images/peppercorn-steak-sandwich.jpeg", import.meta.url).pathname;
 		const imageBuffer = await Deno.readFile(imagePath);
 
-		// Convert to base64
 		const base64Image = "data:image/jpeg;base64," + btoa(
 			new Uint8Array(imageBuffer).reduce((data, byte) => data + String.fromCharCode(byte), ""),
 		);
@@ -279,12 +222,10 @@ Deno.test("food entry service", async (t) => {
 				}),
 			}));
 
-		// Check for a successful response
 		z.object({
 			status: z.number().lte(299),
 		}).parse(response);
 
-		// Validate the food data
 		const data = await response.json();
 
 		console.log(chalk.green("food test response:", JSON.stringify(data)));
@@ -296,7 +237,6 @@ Deno.test("food entry service", async (t) => {
 		}).parse(data);
 	});
 
-	// Test: Food image analysis - non-food image should return error
 	await t.step("analyze non-food image", async () => {
 		const imagePath = new URL("./images/chair.jpg", import.meta.url).pathname;
 		const imageBuffer = await Deno.readFile(imagePath);
@@ -304,8 +244,6 @@ Deno.test("food entry service", async (t) => {
 			new Uint8Array(imageBuffer).reduce((data, byte) => data + String.fromCharCode(byte), ""),
 		);
 
-		// Patch the vision-api.ts to return a "No food detected" error for this test
-		// by mocking the response
 		const response = await perf("analyze non-food image", () =>
 			app.request("/api/analyze", {
 				method: "POST",
@@ -317,13 +255,12 @@ Deno.test("food entry service", async (t) => {
 				}),
 			}));
 
-		// We expect the API to return the specific error format
 		const data = await response.json();
 
 		console.log(chalk.green("Non-food test response:", JSON.stringify(data)));
 
 		z.object({
-			error: z.string().includes("No food"),
+			error: z.string().includes("No Food"),
 		}).parse(data);
 	});
 

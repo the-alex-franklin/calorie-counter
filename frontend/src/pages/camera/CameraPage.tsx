@@ -44,22 +44,14 @@ export const CameraPage = ({ onClose }: CameraPageProps = {}) => {
 
 	const platformCamera = {
 		native: {
-			open: async () => {
-				const capturedPhoto = await Try(() => (
-					Camera.getPhoto({
-						resultType: CameraResultType.DataUrl,
-						quality: 90,
-						correctOrientation: true,
-					})
-				));
-
-				if (capturedPhoto.failure) {
-					console.error("Camera error:", capturedPhoto.error);
-					setError("Unable to access camera. Please check permissions.");
-					return;
-				}
-
-				setPhoto(capturedPhoto.data.dataUrl || null);
+			open: () => {
+				Camera.getPhoto({
+					resultType: CameraResultType.DataUrl,
+					quality: 90,
+					correctOrientation: true,
+				}).then((capturedPhoto) => {
+					setPhoto(capturedPhoto.dataUrl || null);
+				});
 			},
 			close: () => {
 			},
@@ -147,62 +139,26 @@ export const CameraPage = ({ onClose }: CameraPageProps = {}) => {
 		if (!photo) return;
 
 		setIsAnalyzing(true);
-		setError(null);
-
-		Try(async () => {
-			const analysisResult = await foodApi.analyzeImage(photo);
-
-			const parsedAnalysis = foodAnalysisSchema.safeParse(analysisResult);
-			if (!parsedAnalysis.success) throw new Error("Invalid analysis result returned from API");
-
-			setAnalysis(parsedAnalysis.data);
-		}).catch((error: any) => {
-			console.error("Error analyzing photo:", error);
-
-			let errorMessage = "Failed to analyze image. Please try again or take another photo.";
-
-			if (error.response?.data?.error) {
-				errorMessage = `Analysis failed: ${error.response.data.error}`;
-			} else if (error.message) {
-				errorMessage = `Analysis failed: ${error.message}`;
-			}
-
-			setError(errorMessage);
-		}).finally(() => {
-			setIsAnalyzing(false);
-		});
+		setAnalysis(await foodApi.analyzeImage(photo));
+		setIsAnalyzing(false);
 	};
 
 	const saveAnalysis = async () => {
 		if (!analysis) return;
 
 		setIsSaving(true);
-		setError(null);
 
-		Try(async () => {
-			const parsedAnalysis = foodAnalysisSchema.parse(analysis, {
-				errorMap: () => ({ message: "Invalid food data. Please try analyzing again." }),
-			});
+		await Try(async () => {
+			const parsedAnalysis = foodAnalysisSchema.parse(analysis);
 
-			const savedEntry = await foodApi.saveFoodEntry({
+			await foodApi.saveFoodEntry({
 				...parsedAnalysis,
 				imageUrl: photo || undefined,
 			});
-
-			if (!savedEntry.id) throw new Error("Invalid response from server when saving.");
-
-			handleClose();
-		}).catch((error: any) => {
-			setError(
-				`Save failed: ${
-					error.response?.data?.error ||
-					error.message ||
-					"Failed to save food entry. Please try again."
-				}`,
-			);
-		}).finally(() => {
-			setIsSaving(false);
 		});
+
+		handleClose();
+		setIsSaving(false);
 	};
 
 	return (
@@ -275,7 +231,7 @@ export const CameraPage = ({ onClose }: CameraPageProps = {}) => {
 							: analysis
 							? (
 								<div
-									className={`rounded-3xl p-6 ${darkMode ? "bg-dark-secondary" : "bg-white"} shadow-sm border ${
+									className={`rounded-3xl p-6 ${darkMode ? "bg-primary-secondary" : "bg-white"} shadow-sm border ${
 										darkMode ? "border-gray-800" : "border-gray-100"
 									}`}
 								>
@@ -285,7 +241,7 @@ export const CameraPage = ({ onClose }: CameraPageProps = {}) => {
 										<button
 											onClick={saveAnalysis}
 											disabled={isSaving}
-											className={`px-5 py-2 bg-primary text-white rounded-full shadow-sm ${
+											className={`px-5 py-2 bg-appBlue text-white rounded-full shadow-sm ${
 												isSaving ? "opacity-70" : ""
 											}`}
 										>
@@ -321,13 +277,13 @@ export const CameraPage = ({ onClose }: CameraPageProps = {}) => {
 								<div className="flex justify-between">
 									<button
 										onClick={resetPhoto}
-										className={`px-5 py-2 rounded-full ${darkMode ? "bg-dark-secondary" : "bg-gray-200"}`}
+										className={`px-5 py-2 rounded-full ${darkMode ? "bg-primary-secondary" : "bg-gray-200"}`}
 									>
 										Retake
 									</button>
 									<button
 										onClick={analyzePhoto}
-										className="px-5 py-2 bg-primary text-white rounded-full shadow-sm"
+										className="px-5 py-2 bg-appBlue text-white rounded-full shadow-sm"
 									>
 										Analyze Food
 									</button>
@@ -337,7 +293,7 @@ export const CameraPage = ({ onClose }: CameraPageProps = {}) => {
 				)
 				: (
 					<div className="flex flex-col items-center justify-center h-[calc(100vh-200px)]">
-						<div className={`p-16 rounded-3xl mb-6 ${darkMode ? "bg-dark-secondary" : "bg-gray-100"}`}>
+						<div className={`p-16 rounded-3xl mb-6 ${darkMode ? "bg-primary-secondary" : "bg-gray-100"}`}>
 							<span className="text-5xl">📷</span>
 						</div>
 						<p className="text-center text-gray-500 mb-8">
@@ -345,7 +301,7 @@ export const CameraPage = ({ onClose }: CameraPageProps = {}) => {
 						</p>
 						<button
 							onClick={camera.open}
-							className="px-8 py-3 bg-primary text-white rounded-full shadow-md"
+							className="px-8 py-3 bg-appBlue text-white rounded-full shadow-md"
 						>
 							Open Camera
 						</button>

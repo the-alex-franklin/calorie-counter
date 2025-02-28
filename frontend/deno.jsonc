@@ -35,7 +35,7 @@
 		"unocss": "npm:unocss"
 	},
 	"fmt": {
-		"lineWidth": 120,
+		"lineWidth": 9999,
 		"semiColons": true,
 		"useTabs": true
 	},

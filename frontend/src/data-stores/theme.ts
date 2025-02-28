@@ -25,7 +25,7 @@ export const useThemeStore = create<ThemeState>()(
 				document.documentElement.classList.toggle("dark", newTheme);
 
 				// Apply proper background and text colors
-				document.body.classList.toggle("bg-dark", newTheme);
+				document.body.classList.toggle("bg-primary", newTheme);
 				document.body.classList.toggle("bg-background", !newTheme);
 				document.body.classList.toggle("text-textDark", newTheme);
 				document.body.classList.toggle("text-text", !newTheme);
@@ -60,12 +60,12 @@ export const useThemeStore = create<ThemeState>()(
 				// Apply theme to document
 				if (darkMode) {
 					document.documentElement.classList.add("dark");
-					document.body.classList.add("bg-dark", "text-textDark");
+					document.body.classList.add("bg-primary", "text-textDark");
 					document.body.classList.remove("bg-background", "text-text");
 				} else {
 					document.documentElement.classList.remove("dark");
 					document.body.classList.add("bg-background", "text-text");
-					document.body.classList.remove("bg-dark", "text-textDark");
+					document.body.classList.remove("bg-primary", "text-textDark");
 				}
 			},
 		}),

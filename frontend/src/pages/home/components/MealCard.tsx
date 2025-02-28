@@ -13,7 +13,7 @@ export const MealCard = ({ title, calories, time, imageUrl }: MealCardProps) => 
 	return (
 		<div
 			className={`flex items-center p-4 mb-3 rounded-2xl shadow-sm 
-      ${darkMode ? "bg-dark-secondary" : "bg-white"} 
+      ${darkMode ? "bg-primary-secondary" : "bg-white"} 
       border ${darkMode ? "border-gray-800" : "border-gray-100"}`}
 		>
 			{imageUrl && (

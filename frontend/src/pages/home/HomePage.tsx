@@ -52,7 +52,7 @@ export const HomePage = () => {
 	return (
 		<div className="px-5 pt-4">
 			<div
-				className={`rounded-3xl p-6 mb-8 ${darkMode ? "bg-dark-secondary" : "bg-white"} shadow-sm
+				className={`rounded-3xl p-6 mb-8 ${darkMode ? "bg-primary-secondary" : "bg-white"} shadow-sm
         border ${darkMode ? "border-gray-800" : "border-gray-100"}`}
 			>
 				<div className="flex items-center justify-between mb-3">
@@ -128,7 +128,7 @@ export const HomePage = () => {
 					</div>
 				)
 				: (
-					<div className={`p-8 rounded-2xl text-center ${darkMode ? "bg-dark-secondary" : "bg-gray-100"}`}>
+					<div className={`p-8 rounded-2xl text-center ${darkMode ? "bg-primary-secondary" : "bg-gray-100"}`}>
 						<p className="text-gray-500">No meals recorded for this day</p>
 						<p className="text-sm text-gray-400 mt-2">Use the camera to add your meals</p>
 					</div>

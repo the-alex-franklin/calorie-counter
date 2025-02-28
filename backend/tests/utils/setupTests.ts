@@ -1,5 +1,5 @@
 import { MongoClient } from "mongodb";
-import { createApp } from "../src/app.ts";
+import { createApp } from "../../src/app.ts";
 
 export async function setupTests() {
 	const client = await new MongoClient("mongodb://localhost:27017").connect();

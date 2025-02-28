@@ -1,5 +1,4 @@
 import { type Collection, type Db, ObjectId } from "mongodb";
-// @deno-types="npm:@types/bcryptjs"
 import bcryptjs from "bcryptjs";
 import { z } from "zod";
 import { PlatformError } from "../errors/platform.error.ts";
@@ -61,10 +60,8 @@ export class UserService {
 			createdAt: new Date(),
 		};
 
-		const { insertedId } = await this.users.insertOne(newUser);
-		const user = await this.users.findOne({ _id: insertedId });
-
-		return userReadSchema.parse(user);
+		await this.users.insertOne(newUser);
+		return userReadSchema.parse(newUser);
 	}
 
 	public async comparePassword({ email, password }: UserWrite): Promise<UserRead> {

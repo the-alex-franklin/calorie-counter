@@ -16,7 +16,9 @@
 		"zod": "npm:zod",
 		"axios": "npm:axios",
 		"mongodb": "npm:mongodb",
-		"bcryptjs": "npm:bcryptjs"
+		"bcryptjs": "npm:bcryptjs",
+		"jwt-simple": "npm:jwt-simple",
+		"chalk": "npm:chalk"
 	},
 	"fmt": {
 		"lineWidth": 120,

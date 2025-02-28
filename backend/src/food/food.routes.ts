@@ -37,14 +37,5 @@ export const foodRoutes = (foodEntryService: FoodEntryService) => {
 		return c.json(foodEntries);
 	});
 
-	router.get("/food-entries/date/:date", async (c) => {
-		const { id } = c.get("jwtPayload");
-		const dateParam = c.req.param("date");
-		const date = z.coerce.date().parse(dateParam);
-
-		const foodEntries = await foodEntryService.getFoodEntriesByDate(id, date);
-		return c.json(foodEntries);
-	});
-
 	return router;
 };

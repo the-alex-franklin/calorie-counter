@@ -19,7 +19,7 @@
   --ios-brown: #A2845E;
 
   /* UI Elements - Light Mode */
-  --bg-primary: #F2F2F7;
+  --bg-appBlue: #F2F2F7;
   --bg-secondary: #FFFFFF;
   --text-primary: #000000;
   --text-secondary: #6C6C70;
@@ -36,7 +36,7 @@
 
   color-scheme: light dark;
   color: var(--text-primary);
-  background-color: var(--bg-primary);
+  background-color: var(--bg-appBlue);
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
@@ -48,7 +48,7 @@
 @media (prefers-color-scheme: dark) {
   :root {
     /* UI Elements - Dark Mode */
-    --bg-primary: #1C1C1E;
+    --bg-appBlue: #1C1C1E;
     --bg-secondary: #2C2C2E;
     --text-primary: #FFFFFF;
     --text-secondary: #8E8E93;
@@ -77,7 +77,7 @@ html, body {
 body {
   touch-action: manipulation;
   -webkit-overflow-scrolling: touch;
-  background-color: var(--bg-primary);
+  background-color: var(--bg-appBlue);
   color: var(--text-primary);
 }
 
@@ -341,7 +341,7 @@ html.dark {
 
 /* Dark mode class for explicitly setting variables */
 .dark {
-  --bg-primary: #1C1C1E;
+  --bg-appBlue: #1C1C1E;
   --bg-secondary: #2C2C2E;
   --text-primary: #FFFFFF;
   --text-secondary: #8E8E93;
@@ -352,11 +352,11 @@ html.dark {
 }
 
 /* Dark mode backgrounds */
-.bg-dark {
-  background-color: var(--bg-primary);
+.bg-primary {
+  background-color: var(--bg-appBlue);
 }
 
-.bg-dark-secondary {
+.bg-primary-secondary {
   background-color: var(--bg-secondary) !important;
 }
 

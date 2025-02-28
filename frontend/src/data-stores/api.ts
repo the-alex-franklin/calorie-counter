@@ -95,7 +95,7 @@ export const foodApi = {
 	analyzeImage: async (imageData: string): Promise<FoodAnalysis> => {
 		const api = getApiClient();
 		const response = await api.post("/api/analyze", { image: imageData });
-		return response.data;
+		return foodAnalysisSchema.parse(response.data);
 	},
 
 	saveFoodEntry: async (foodData: FoodAnalysis): Promise<FoodEntry> => {
@@ -108,19 +108,12 @@ export const foodApi = {
 	getTodayFoodEntries: async (): Promise<FoodEntry[]> => {
 		const api = getApiClient();
 		const response = await api.get("/api/todays-food-entries");
-		return z.array(foodEntrySchema).parse(response.data);
+		return foodEntrySchema.array().parse(response.data);
 	},
 
 	getPreviousFoodEntries: async (): Promise<FoodEntry[]> => {
 		const api = getApiClient();
 		const response = await api.get("/api/previous-food-entries");
-		return z.array(foodEntrySchema).parse(response.data);
-	},
-
-	getFoodEntriesByDate: async (date: Date): Promise<FoodEntry[]> => {
-		const api = getApiClient();
-		const dateString = date.toISOString().split("T")[0];
-		const response = await api.get(`/api/food-entries/date/${dateString}`);
-		return z.array(foodEntrySchema).parse(response.data);
+		return foodEntrySchema.array().parse(response.data);
 	},
 };

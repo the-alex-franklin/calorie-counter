@@ -704,7 +704,9 @@
       "jsr:@2or3godzillas/fp-try@*",
       "npm:axios@*",
       "npm:bcryptjs@*",
+      "npm:chalk@*",
       "npm:hono@*",
+      "npm:jwt-simple@*",
       "npm:mongodb@*",
       "npm:zod@*"
     ]

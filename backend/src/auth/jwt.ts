@@ -1,8 +1,8 @@
-import jwt from "npm:jwt-simple";
+import jwt from "jwt-simple";
 import { env } from "../env.ts";
 import { z } from "zod";
 import { PlatformError } from "../errors/platform.error.ts";
-import { Success, Try } from "fp-try";
+import { Try } from "fp-try";
 
 const ACCESS_TOKEN_EXPIRY = 15 * 60;
 const REFRESH_TOKEN_EXPIRY = 7 * 24 * 60 * 60;

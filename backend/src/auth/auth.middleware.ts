@@ -1,4 +1,4 @@
-import { type MiddlewareHandler } from "hono";
+import type { MiddlewareHandler } from "hono";
 import { decodeAccessToken } from "./jwt.ts";
 import { PlatformError } from "../errors/platform.error.ts";
 

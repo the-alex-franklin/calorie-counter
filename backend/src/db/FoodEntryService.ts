@@ -92,8 +92,6 @@ export class FoodEntryService {
 	}
 
 	public async getPreviousFoodEntries(userId: string): Promise<FoodEntryRead[]> {
-		// Let errors propagate - if this is only ever called where the result
-		// doesn't matter or is properly handled, there's no need for try/catch
 		const validUserId = userIdSchema.parse(userId);
 
 		const today = new Date();
@@ -108,29 +106,6 @@ export class FoodEntryService {
 				createdAt: {
 					$gte: tenDaysAgo,
 					$lt: today,
-				},
-			})
-			.sort({ createdAt: -1 })
-			.toArray();
-
-		return foodEntryReadSchema.array().parse(entries);
-	}
-
-	public async getFoodEntriesByDate(userId: string, date: Date): Promise<FoodEntryRead[]> {
-		const validUserId = userIdSchema.parse(userId);
-
-		const startOfDay = new Date(date);
-		startOfDay.setHours(0, 0, 0, 0);
-
-		const endOfDay = new Date(date);
-		endOfDay.setHours(23, 59, 59, 999);
-
-		const entries = await this.foodEntries
-			.find({
-				userId: new ObjectId(validUserId),
-				createdAt: {
-					$gte: startOfDay,
-					$lte: endOfDay,
 				},
 			})
 			.sort({ createdAt: -1 })

@@ -17,9 +17,9 @@ export const ProfilePage = () => {
 
 	return (
 		<>
-			<h2 className="text-lg font-semibold mb-3">Goals & Preferences</h2>
+			<h2 className="text-lg font-semibold mb-4">Goals & Preferences</h2>
 
-			<div className="mb-6">
+			<div className="mb-5">
 				<SettingItem
 					icon="🎯"
 					label="Daily Calorie Goal"
@@ -44,54 +44,37 @@ export const ProfilePage = () => {
 				/>
 			</div>
 
-			<>
-				<h2 className="text-lg font-semibold mb-3">App Settings</h2>
+			<h2 className="text-lg font-semibold mb-4">App Settings</h2>
 
-				<div className="mb-6">
-					<SettingItem
-						icon="📊"
-						label="Export Data"
-						onClick={() => alert("This would export your data")}
-					/>
+			<div className="mb-5">
+				<SettingItem
+					icon="📱"
+					label="App Version"
+					value="1.0.0"
+				/>
+			</div>
 
-					<SettingItem
-						icon="📱"
-						label="App Version"
-						value="1.0.0"
-					/>
-				</div>
-
-				<div className="mt-8">
-					<SettingItem
-						icon="🚪"
-						label="Sign Out"
-						danger
-						onClick={logout}
-					/>
-				</div>
-			</>
+			<div className="mb-5">
+				<SettingItem
+					icon="🚪"
+					label="Sign Out"
+					danger
+					onClick={logout}
+				/>
+			</div>
 
 			{showGoalModal && (
 				<div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-					<div
-						className={`w-5/6 p-6 rounded-2xl shadow-lg 
-              ${darkMode ? "bg-dark" : "bg-white"}`}
-					>
+					<div className={`w-5/6 p-6 rounded-2xl shadow-lg ${darkMode ? "bg-primary" : "bg-white"}`}>
 						<h3 className="text-lg font-semibold mb-4">Set Daily Calorie Goal</h3>
 
-						<div className="space-y-4 mb-6">
+						<div className="space-y-4 mb-5">
 							{[1500, 2000, 2500, 3000].map((goal) => (
 								<div
 									key={goal}
 									onClick={() => handleGoalChange(goal)}
-									className={`p-3 rounded-xl border flex items-center justify-between cursor-pointer
-                      ${
-										dailyGoal === goal
-											? "border-primary bg-primary bg-opacity-10"
-											: darkMode
-											? "border-gray-700"
-											: "border-gray-200"
-									}`}
+									// deno-fmt-ignore
+									className={`p-3 rounded-xl border flex items-center justify-between cursor-pointer ${dailyGoal === goal ? "border-primary bg-appBlue bg-opacity-10" : darkMode ? "border-gray-700" : "border-gray-200"}`}
 								>
 									<span>{goal} calories</span>
 									{dailyGoal === goal && <span className="text-primary">✓</span>}

@@ -1,6 +1,12 @@
 import type { FoodEntry } from "../../../data-stores/api.ts";
 import { useThemeStore } from "../../../data-stores/theme.ts";
 
+export type DaySummaryData = {
+	date: string;
+	calories: number;
+	entries: FoodEntry[];
+};
+
 type DaySummaryProps = {
 	date: string;
 	calories: number;
@@ -29,7 +35,7 @@ export const DaySummary = (
 	return (
 		<div
 			className={`mb-4 rounded-2xl overflow-hidden border
-        ${darkMode ? "bg-dark-secondary border-gray-800" : "bg-white border-gray-100"} 
+        ${darkMode ? "bg-primary-secondary border-gray-800" : "bg-white border-gray-100"} 
         shadow-sm transition-all duration-300`}
 			style={{ maxHeight: isExpanded ? "600px" : "80px" }}
 		>
@@ -124,7 +130,7 @@ export const DaySummary = (
 											<div
 												key={idx}
 												className={`p-3 rounded-xl flex items-center justify-between 
-                      ${darkMode ? "bg-dark" : "bg-gray-100"}`}
+                      ${darkMode ? "bg-primary" : "bg-gray-100"}`}
 											>
 												<div className="flex items-center">
 													{entry.imageUrl && (
@@ -146,7 +152,7 @@ export const DaySummary = (
 								</div>
 							)
 							: (
-								<div className={`p-3 rounded-xl ${darkMode ? "bg-dark" : "bg-gray-100"}`}>
+								<div className={`p-3 rounded-xl ${darkMode ? "bg-primary" : "bg-gray-100"}`}>
 									<p className="text-center text-sm text-gray-500">No meal data available for this day</p>
 								</div>
 							)}

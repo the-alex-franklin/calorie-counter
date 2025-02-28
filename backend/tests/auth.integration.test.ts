@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { setupTests } from "./setupTests.ts";
+import { setupTests } from "./utils/setupTests.ts";
 
 async function perf(name: string, fn: () => Response | Promise<Response>) {
 	const start = performance.now();
