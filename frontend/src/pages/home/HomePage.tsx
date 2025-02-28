@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { useThemeStore } from "../../data-stores/theme.ts";
 import { buildStyles, CircularProgressbar } from "react-circular-progressbar";
-
 import { foodApi } from "../../data-stores/api.ts";
 import { MealCard, type MealCardProps } from "./components/MealCard.tsx";
 import { Try } from "fp-try";
@@ -38,7 +37,7 @@ export const HomePage = () => {
 
 			const totalCalories = entries.reduce((sum, entry) => sum + entry.calories, 0);
 			setCalories(totalCalories);
-		}).catch((error) => {
+		}).catch(() => {
 			setMealEntries([]);
 			setCalories(0);
 		}).finally(() => {

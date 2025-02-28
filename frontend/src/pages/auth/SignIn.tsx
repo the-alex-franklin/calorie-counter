@@ -6,7 +6,7 @@ import { useAuthStore } from "../../data-stores/auth.ts";
 import { Capacitor } from "@capacitor/core";
 import { Try } from "fp-try";
 
-const SignIn = () => {
+export const SignIn = () => {
 	const isMobile = Capacitor.isNativePlatform();
 	const { login } = useAuthStore();
 	const [email, setEmail] = useState<string>("");
@@ -78,5 +78,3 @@ const SignIn = () => {
 		</div>
 	);
 };
-
-export default SignIn;

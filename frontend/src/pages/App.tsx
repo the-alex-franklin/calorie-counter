@@ -73,9 +73,9 @@ export const App = () => {
 				{activeCameraMode ? <span className="text-xl font-bold">✕</span> : <span>📷</span>}
 			</button>
 
-			<div className={`fixed inset-0 z-50 ${isSideMenuOpen ? "visible" : "invisible"} bg-black bg-opacity-40 transition-all duration-300 ${isSideMenuOpen ? "opacity-100" : "opacity-0"}`}>
-				<div ref={sideMenuRef} className={`absolute top-0 left-0 bottom-0 w-3/4 max-w-xs ${darkMode ? "bg-primary-secondary" : "bg-white"} shadow-lg transform transition-transform duration-300 ease-out hide-scrollbar ${isSideMenuOpen ? "translate-x-0" : "-translate-x-full"}`}>
-					<div className={`p-4 border-b ${darkMode ? "border-gray-800" : "border-gray-200"}`}>
+			<div className={`fixed inset-0 z-1 ${isSideMenuOpen ? "visible" : "invisible"} bg-black bg-opacity-40 transition-all duration-300 ${isSideMenuOpen ? "opacity-100" : "opacity-0"}`}>
+				<div ref={sideMenuRef} className={`absolute top-0 left-0 bottom-0 w-3/4 max-w-xs dark:bg-primary bg-white shadow-lg transform transition-transform duration-300 ease-out hide-scrollbar ${isSideMenuOpen ? "translate-x-0" : "-translate-x-full"}`}>
+					<div className="p-4 border-b dark:border-gray-800 border-gray-200">
 						<div className="w-16 h-16 rounded-full bg-appBlue text-white flex items-center justify-center text-2xl font-bold mb-3">
 							{user?.email?.charAt(0).toUpperCase()}
 						</div>

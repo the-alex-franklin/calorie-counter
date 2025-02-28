@@ -1,7 +1,7 @@
 import { App } from "./pages/App.tsx";
-import SignIn from "./pages/auth/SignIn.tsx";
-import SignUp from "./pages/auth/SignUp.tsx";
-import { BrowserRouter, Navigate, Route, Routes } from "npm:react-router-dom";
+import { SignIn } from "./pages/auth/SignIn.tsx";
+import { SignUp } from "./pages/auth/SignUp.tsx";
+import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import { useAuthStore } from "./data-stores/auth.ts";
 import { useThemeStore } from "./data-stores/theme.ts";
 import { useEffect } from "react";

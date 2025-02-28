@@ -27,9 +27,7 @@ export const CameraPage = ({ onClose }: CameraPageProps = {}) => {
 	const stopAllVideoStreams = () => {
 		if (videoRef.current?.srcObject) {
 			const stream = videoRef.current.srcObject as MediaStream;
-			stream.getTracks().forEach((track) => {
-				track.stop();
-			});
+			stream.getTracks().forEach((track) => track.stop());
 			videoRef.current.srcObject = null;
 		}
 
@@ -53,10 +51,8 @@ export const CameraPage = ({ onClose }: CameraPageProps = {}) => {
 					setPhoto(capturedPhoto.dataUrl || null);
 				});
 			},
-			close: () => {
-			},
-			capture: () => {
-			},
+			close: () => {},
+			capture: () => {},
 		},
 
 		web: {
@@ -88,13 +84,9 @@ export const CameraPage = ({ onClose }: CameraPageProps = {}) => {
 	};
 
 	useEffect(() => {
-		if (!isNative) {
-			setIsCameraOpen(true);
-		}
+		if (!isNative) setIsCameraOpen(true);
 
-		return () => {
-			stopAllVideoStreams();
-		};
+		return () => stopAllVideoStreams();
 	}, [isNative]);
 
 	useEffect(() => {
@@ -128,11 +120,8 @@ export const CameraPage = ({ onClose }: CameraPageProps = {}) => {
 	const handleClose = () => {
 		stopAllVideoStreams();
 
-		if (onClose) {
-			onClose();
-		} else {
-			navigate("/home", { replace: true });
-		}
+		if (onClose) onClose();
+		else navigate("/home", { replace: true });
 	};
 
 	const analyzePhoto = async () => {
@@ -231,9 +220,7 @@ export const CameraPage = ({ onClose }: CameraPageProps = {}) => {
 							: analysis
 							? (
 								<div
-									className={`rounded-3xl p-6 ${darkMode ? "bg-primary-secondary" : "bg-white"} shadow-sm border ${
-										darkMode ? "border-gray-800" : "border-gray-100"
-									}`}
+									className={`rounded-3xl p-6 ${darkMode ? "bg-primary-secondary" : "bg-white"} shadow-sm border ${darkMode ? "border-gray-800" : "border-gray-100"}`}
 								>
 									<h2 className="text-xl font-bold mb-2">{analysis.name}</h2>
 									<div className="flex items-center justify-between mb-4">
@@ -241,9 +228,7 @@ export const CameraPage = ({ onClose }: CameraPageProps = {}) => {
 										<button
 											onClick={saveAnalysis}
 											disabled={isSaving}
-											className={`px-5 py-2 bg-appBlue text-white rounded-full shadow-sm ${
-												isSaving ? "opacity-70" : ""
-											}`}
+											className={`px-5 py-2 bg-appBlue text-white rounded-full shadow-sm ${isSaving ? "opacity-70" : ""}`}
 										>
 											{isSaving ? "Saving..." : "Save Entry"}
 										</button>
@@ -255,9 +240,7 @@ export const CameraPage = ({ onClose }: CameraPageProps = {}) => {
 											<div key={index} className="flex justify-between items-center">
 												<div className="flex items-center">
 													<div
-														className={`w-12 h-2 rounded-full mr-3 ${
-															["bg-red-500", "bg-green-500", "bg-blue-500", "bg-yellow-500", "bg-purple-500"][index % 5]
-														}`}
+														className={`w-12 h-2 rounded-full mr-3 ${["bg-red-500", "bg-green-500", "bg-blue-500", "bg-yellow-500", "bg-purple-500"][index % 5]}`}
 													>
 													</div>
 													<span>{ingredient.name}</span>

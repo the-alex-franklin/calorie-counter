@@ -19,7 +19,7 @@
   --ios-brown: #A2845E;
 
   /* UI Elements - Light Mode */
-  --bg-appBlue: #F2F2F7;
+  --bg-appBlue: #007AFF;
   --bg-secondary: #FFFFFF;
   --text-primary: #000000;
   --text-secondary: #6C6C70;
@@ -48,7 +48,7 @@
 @media (prefers-color-scheme: dark) {
   :root {
     /* UI Elements - Dark Mode */
-    --bg-appBlue: #1C1C1E;
+    --bg-appBlue: #007AFF;
     --bg-secondary: #2C2C2E;
     --text-primary: #FFFFFF;
     --text-secondary: #8E8E93;

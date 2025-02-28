@@ -24,7 +24,6 @@ export const DaySummary = (
 	const percentOfGoal = (calories / goalCalories) * 100;
 	const isOverGoal = calories > goalCalories;
 
-	// Format date nicely (e.g., "Monday, May 15")
 	const displayDate = new Date(date);
 	const formattedDate = new Intl.DateTimeFormat("en-US", {
 		weekday: "long",
@@ -37,7 +36,6 @@ export const DaySummary = (
 			className={`mb-4 rounded-2xl overflow-hidden border shadow-sm transition-all duration-300 ${darkMode ? "bg-primary-secondary border-gray-800" : "bg-white border-gray-100"}`}
 			style={{ maxHeight: isExpanded ? "600px" : "80px" }}
 		>
-			{/* Header - always visible */}
 			<div
 				className="flex items-center justify-between p-4 cursor-pointer"
 				onClick={onToggle}
@@ -68,7 +66,7 @@ export const DaySummary = (
 							<path
 								d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
 								fill="none"
-								stroke={isOverGoal ? "#FF3B30" : "#34C759"} // iOS colors
+								stroke={isOverGoal ? "#FF3B30" : "#34C759"}
 								strokeWidth="3"
 								strokeDasharray={`${percentOfGoal}, 100`}
 							/>
@@ -84,7 +82,6 @@ export const DaySummary = (
 				</div>
 			</div>
 
-			{/* Expanded content */}
 			{isExpanded && (
 				<div className="p-4 border-t border-gray-200 dark:border-gray-700">
 					<div className="flex justify-between mb-3">

@@ -6,8 +6,7 @@ import { useAuthStore } from "../../data-stores/auth.ts";
 import { Capacitor } from "@capacitor/core";
 import { Try } from "fp-try";
 
-const SignUp = () => {
-	const isMobile = Capacitor.isNativePlatform();
+export const SignUp = () => {
 	const { signup } = useAuthStore();
 	const [email, setEmail] = useState<string>("");
 	const [password, setPassword] = useState<string>("");
@@ -43,7 +42,6 @@ const SignUp = () => {
 			<h1 className="text-xl font-semibold mb-6">Sign Up</h1>
 			{error && <div className="mb-4 p-2 bg-red-100 text-red-700 rounded">{error}</div>}
 
-			(
 			<div>
 				<FormInput
 					label="Email"
@@ -72,7 +70,6 @@ const SignUp = () => {
 					disabled={isLoading}
 				/>
 			</div>
-			)
 
 			<p className="mt-4 text-sm">
 				Already have an account? <Link to="/sign-in" className="text-indigo-600">Sign In</Link>
@@ -80,5 +77,3 @@ const SignUp = () => {
 		</div>
 	);
 };
-
-export default SignUp;
