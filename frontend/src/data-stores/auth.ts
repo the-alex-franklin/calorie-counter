@@ -71,7 +71,7 @@ export const useAuthStore = create<AuthState>()(
 			refreshTokens: async () => {
 				const refresh_result = await Try(async () => {
 					const { refreshToken } = get();
-					if (!refreshToken) return;
+					if (!refreshToken) throw new Error("No refresh token");
 
 					const { data } = await axios.post(`${env.API_URL}/token-refresh`, { refreshToken });
 

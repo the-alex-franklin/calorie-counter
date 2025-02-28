@@ -51,10 +51,7 @@ export const HomePage = () => {
 
 	return (
 		<div className="px-5 pt-4">
-			<div
-				className={`rounded-3xl p-6 mb-8 ${darkMode ? "bg-primary-secondary" : "bg-white"} shadow-sm
-        border ${darkMode ? "border-gray-800" : "border-gray-100"}`}
-			>
+			<div className={`rounded-3xl p-6 mb-8 ${darkMode ? "bg-primary-secondary" : "bg-white"} shadow-sm border ${darkMode ? "border-gray-800" : "border-gray-100"}`}>
 				<div className="flex items-center justify-between mb-3">
 					<h3 className="text-xl font-semibold">Today's Progress</h3>
 					<span className={`text-sm ${darkMode ? "text-gray-400" : "text-gray-500"}`}>

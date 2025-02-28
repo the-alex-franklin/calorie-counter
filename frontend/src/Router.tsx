@@ -21,19 +21,11 @@ export function Router() {
 				<Route path="/sign-up" element={!isAuthenticated ? <SignUp /> : <Navigate to="/home" />} />
 				<Route path="/sign-in" element={!isAuthenticated ? <SignIn /> : <Navigate to="/home" />} />
 
-				<Route
-					path="/home"
-					element={
-						<ProtectedRoute>
-							<App />
-						</ProtectedRoute>
-					}
-				/>
+				<Route element={<ProtectedRoute isAuthenticated={isAuthenticated} />}>
+					<Route path="/home" element={<App />} />
+				</Route>
 
-				<Route
-					path="*"
-					element={isAuthenticated ? <Navigate to="/home" replace /> : <Navigate to="/sign-in" replace />}
-				/>
+				<Route path="*" element={isAuthenticated ? <Navigate to="/home" replace /> : <Navigate to="/sign-in" replace />} />
 			</Routes>
 		</BrowserRouter>
 	);

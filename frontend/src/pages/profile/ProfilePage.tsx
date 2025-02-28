@@ -73,7 +73,6 @@ export const ProfilePage = () => {
 								<div
 									key={goal}
 									onClick={() => handleGoalChange(goal)}
-									// deno-fmt-ignore
 									className={`p-3 rounded-xl border flex items-center justify-between cursor-pointer ${dailyGoal === goal ? "border-primary bg-appBlue bg-opacity-10" : darkMode ? "border-gray-700" : "border-gray-200"}`}
 								>
 									<span>{goal} calories</span>

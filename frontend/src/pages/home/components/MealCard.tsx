@@ -11,11 +11,7 @@ export const MealCard = ({ title, calories, time, imageUrl }: MealCardProps) => 
 	const { darkMode } = useThemeStore();
 
 	return (
-		<div
-			className={`flex items-center p-4 mb-3 rounded-2xl shadow-sm 
-      ${darkMode ? "bg-primary-secondary" : "bg-white"} 
-      border ${darkMode ? "border-gray-800" : "border-gray-100"}`}
-		>
+		<div className={`flex items-center p-4 mb-3 rounded-2xl shadow-sm border ${darkMode ? "bg-primary-secondary" : "bg-white"} ${darkMode ? "border-gray-800" : "border-gray-100"}`}>
 			{imageUrl && (
 				<div className="w-16 h-16 mr-4 rounded-xl overflow-hidden">
 					<img src={imageUrl} alt={title} className="w-full h-full object-cover" />

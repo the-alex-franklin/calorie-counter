@@ -34,9 +34,7 @@ export const DaySummary = (
 
 	return (
 		<div
-			className={`mb-4 rounded-2xl overflow-hidden border
-        ${darkMode ? "bg-primary-secondary border-gray-800" : "bg-white border-gray-100"} 
-        shadow-sm transition-all duration-300`}
+			className={`mb-4 rounded-2xl overflow-hidden border shadow-sm transition-all duration-300 ${darkMode ? "bg-primary-secondary border-gray-800" : "bg-white border-gray-100"}`}
 			style={{ maxHeight: isExpanded ? "600px" : "80px" }}
 		>
 			{/* Header - always visible */}

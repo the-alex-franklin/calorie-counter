@@ -15,15 +15,6 @@ const SignUp = () => {
 	const [error, setError] = useState<string | null>(null);
 	const navigate = useNavigate();
 
-	const handleSubmit = async (e: React.FormEvent) => {
-		e.preventDefault();
-		e.stopPropagation();
-		if (e.nativeEvent) {
-			e.nativeEvent.stopImmediatePropagation();
-		}
-		await handleSignUp();
-	};
-
 	const handleSignUp = async () => {
 		if (isLoading) return;
 
@@ -52,65 +43,36 @@ const SignUp = () => {
 			<h1 className="text-xl font-semibold mb-6">Sign Up</h1>
 			{error && <div className="mb-4 p-2 bg-red-100 text-red-700 rounded">{error}</div>}
 
-			{isMobile
-				? (
-					<div>
-						<FormInput
-							label="Email"
-							type="email"
-							value={email}
-							onChange={(e) => setEmail(e.target.value)}
-							onKeyDown={handleKeyDown}
-							required
-							disabled={isLoading}
-							autoComplete="email"
-						/>
-						<FormInput
-							label="Password"
-							type="password"
-							value={password}
-							onChange={(e) => setPassword(e.target.value)}
-							onKeyDown={handleKeyDown}
-							required
-							disabled={isLoading}
-							autoComplete="new-password"
-						/>
-						<FormButton
-							text={isLoading ? "Signing Up..." : "Sign Up"}
-							type="button"
-							onClick={handleSignUp}
-							disabled={isLoading}
-						/>
-					</div>
-				)
-				: (
-					<form onSubmit={handleSubmit} action="#" noValidate>
-						<FormInput
-							label="Email"
-							type="email"
-							value={email}
-							onChange={(e) => setEmail(e.target.value)}
-							required
-							disabled={isLoading}
-							autoComplete="email"
-						/>
-						<FormInput
-							label="Password"
-							type="password"
-							value={password}
-							onChange={(e) => setPassword(e.target.value)}
-							required
-							disabled={isLoading}
-							autoComplete="new-password"
-						/>
-						<FormButton
-							text={isLoading ? "Signing Up..." : "Sign Up"}
-							type="button"
-							onClick={handleSignUp}
-							disabled={isLoading}
-						/>
-					</form>
-				)}
+			(
+			<div>
+				<FormInput
+					label="Email"
+					type="email"
+					value={email}
+					onChange={(e) => setEmail(e.target.value)}
+					onKeyDown={handleKeyDown}
+					required
+					disabled={isLoading}
+					autoComplete="email"
+				/>
+				<FormInput
+					label="Password"
+					type="password"
+					value={password}
+					onChange={(e) => setPassword(e.target.value)}
+					onKeyDown={handleKeyDown}
+					required
+					disabled={isLoading}
+					autoComplete="new-password"
+				/>
+				<FormButton
+					text={isLoading ? "Signing Up..." : "Sign Up"}
+					type="button"
+					onClick={handleSignUp}
+					disabled={isLoading}
+				/>
+			</div>
+			)
 
 			<p className="mt-4 text-sm">
 				Already have an account? <Link to="/sign-in" className="text-indigo-600">Sign In</Link>
