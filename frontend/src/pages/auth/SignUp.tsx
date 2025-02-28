@@ -1,9 +1,7 @@
 import { useEffect, useState } from "react";
 import { FormInput } from "./components/FormInput.tsx";
-import { FormButton } from "./components/FormButton.tsx";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuthStore } from "../../data-stores/auth.ts";
-import { Capacitor } from "@capacitor/core";
 import { Try } from "fp-try";
 
 export const SignUp = () => {
@@ -20,8 +18,9 @@ export const SignUp = () => {
 		setIsLoading(true);
 		setError(null);
 
-		const signup_result = await Try(() => signup(email, password));
-		if (signup_result.failure) setIsLoading(false);
+		Try(() => signup(email, password))
+			.catch((err: Error) => setError(err.message))
+			.finally(() => setIsLoading(false));
 	};
 
 	useEffect(() => {
@@ -38,7 +37,7 @@ export const SignUp = () => {
 	};
 
 	return (
-		<div className="max-w-md p-6 bg-white shadow-md rounded-lg">
+		<div className="max-w-md text-black p-6 bg-white shadow-md rounded-lg">
 			<h1 className="text-xl font-semibold mb-6">Sign Up</h1>
 			{error && <div className="mb-4 p-2 bg-red-100 text-red-700 rounded">{error}</div>}
 
@@ -63,12 +62,7 @@ export const SignUp = () => {
 					disabled={isLoading}
 					autoComplete="new-password"
 				/>
-				<FormButton
-					text={isLoading ? "Signing Up..." : "Sign Up"}
-					type="button"
-					onClick={handleSignUp}
-					disabled={isLoading}
-				/>
+				<button onClick={handleSignUp} disabled={isLoading}>{isLoading ? "Signing Up..." : "Sign Up"}</button>
 			</div>
 
 			<p className="mt-4 text-sm">

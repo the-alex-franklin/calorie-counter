@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Capacitor } from "@capacitor/core";
 import { Camera, CameraResultType } from "@capacitor/camera";
-import { useThemeStore } from "../../data-stores/theme.ts";
 import { Try } from "jsr:@2or3godzillas/fp-try";
 import { type FoodAnalysis, foodAnalysisSchema, foodApi } from "../../data-stores/api.ts";
 import { useNavigate } from "react-router-dom";
@@ -11,7 +10,6 @@ type CameraPageProps = {
 };
 
 export const CameraPage = ({ onClose }: CameraPageProps = {}) => {
-	const { darkMode } = useThemeStore();
 	const [isCameraOpen, setIsCameraOpen] = useState(false);
 	const [photo, setPhoto] = useState<string | null>(null);
 	const [isAnalyzing, setIsAnalyzing] = useState(false);

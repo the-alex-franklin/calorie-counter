@@ -1,18 +1,13 @@
-import { useEffect, useState } from "react";
-import { useThemeStore } from "../../data-stores/theme.ts";
+import { useLayoutEffect, useState } from "react";
 import { foodApi, type FoodEntry } from "../../data-stores/api.ts";
 import { DaySummary, type DaySummaryData } from "./components/DaySummary.tsx";
 import { Try } from "fp-try";
 
 export const HistoryPage = () => {
-	const { darkMode } = useThemeStore();
 	const [daysData, setDaysData] = useState<DaySummaryData[]>([]);
 	const [expandedDay, setExpandedDay] = useState<string | null>(null);
-	const [isLoading, setIsLoading] = useState(false);
 
-	useEffect(() => {
-		setIsLoading(true);
-
+	useLayoutEffect(() => {
 		Try(async () => {
 			const allEntries = await foodApi.getPreviousFoodEntries();
 			const entriesByDate = new Map<string, FoodEntry[]>();
@@ -33,18 +28,12 @@ export const HistoryPage = () => {
 			summaries.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
 			setDaysData(summaries);
-		}).finally(() => setIsLoading(false));
+		});
 	}, []);
 
 	return (
 		<div>
-			{isLoading
-				? (
-					<div className="flex justify-center py-8">
-						<div className="animate-spin h-8 w-8 border-4 border-blue-500 rounded-full border-t-transparent"></div>
-					</div>
-				)
-				: daysData.length > 0
+			{daysData.length > 0
 				? (
 					<div>
 						{daysData.map((day) => (

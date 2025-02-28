@@ -17,9 +17,7 @@ type DaySummaryProps = {
 	onViewDetails?: (entries: FoodEntry[]) => void;
 };
 
-export const DaySummary = (
-	{ date, calories, goalCalories, entries, isExpanded, onToggle, onViewDetails }: DaySummaryProps,
-) => {
+export const DaySummary = ({ date, calories, goalCalories, entries, isExpanded, onToggle, onViewDetails }: DaySummaryProps) => {
 	const { darkMode } = useThemeStore();
 	const percentOfGoal = (calories / goalCalories) * 100;
 	const isOverGoal = calories > goalCalories;
@@ -76,7 +74,7 @@ export const DaySummary = (
 						</span>
 					</div>
 
-					<span className={`ml-2 transition-transform duration-300 ${isExpanded ? "transform rotate-180" : ""}`}>
+					<span className={`ml-2 transition-transform duration-300 ${isExpanded ? "transform -rotate-180" : ""}`}>
 						⌄
 					</span>
 				</div>

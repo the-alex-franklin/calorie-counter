@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useLayoutEffect, useState } from "react";
 import { useThemeStore } from "../../data-stores/theme.ts";
 import { buildStyles, CircularProgressbar } from "react-circular-progressbar";
 import { foodApi } from "../../data-stores/api.ts";
@@ -9,12 +9,10 @@ export const HomePage = () => {
 	const { darkMode } = useThemeStore();
 	const [calories, setCalories] = useState(0);
 	const [dailyGoal] = useState(2000);
-	const [mealEntries, setMealEntries] = useState<Array<MealCardProps>>([]);
-	const [isLoading, setIsLoading] = useState(false);
+	const [mealEntries, setMealEntries] = useState<MealCardProps[]>([]);
 
-	useEffect(() => {
+	useLayoutEffect(() => {
 		Try(async () => {
-			setIsLoading(true);
 			const entries = await foodApi.getTodayFoodEntries();
 
 			const mealEntries = entries.map((entry) => {
@@ -40,8 +38,6 @@ export const HomePage = () => {
 		}).catch(() => {
 			setMealEntries([]);
 			setCalories(0);
-		}).finally(() => {
-			setIsLoading(false);
 		});
 	}, []);
 
@@ -103,13 +99,7 @@ export const HomePage = () => {
 
 			<h3 className="text-xl font-semibold mb-4">Today's Meals</h3>
 
-			{isLoading
-				? (
-					<div className="flex justify-center py-8">
-						<div className="animate-spin h-8 w-8 border-4 border-blue-500 rounded-full border-t-transparent"></div>
-					</div>
-				)
-				: mealEntries.length > 0
+			{mealEntries.length > 0
 				? (
 					<div>
 						{mealEntries.map((meal, index) => (

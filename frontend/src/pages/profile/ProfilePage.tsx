@@ -26,7 +26,6 @@ export const ProfilePage = () => {
 					value={`${dailyGoal} calories`}
 					onClick={() => setShowGoalModal(true)}
 				/>
-
 				<SettingItem
 					icon="🔔"
 					label="Notifications"
@@ -34,7 +33,6 @@ export const ProfilePage = () => {
 					isToggled={notifications}
 					onToggle={() => setNotifications(!notifications)}
 				/>
-
 				<SettingItem
 					icon="🌓"
 					label="Dark Mode"

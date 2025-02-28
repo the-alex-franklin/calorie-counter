@@ -4,14 +4,14 @@ import { SignUp } from "./pages/auth/SignUp.tsx";
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import { useAuthStore } from "./data-stores/auth.ts";
 import { useThemeStore } from "./data-stores/theme.ts";
-import { useEffect } from "react";
+import { useLayoutEffect } from "react";
 import { ProtectedRoute } from "./components/ProtectedRoute.tsx";
 
 export function Router() {
 	const { isAuthenticated } = useAuthStore();
 	const { initTheme } = useThemeStore();
 
-	useEffect(() => {
+	useLayoutEffect(() => {
 		initTheme();
 	}, []);
 

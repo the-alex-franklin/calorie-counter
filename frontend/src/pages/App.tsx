@@ -1,5 +1,4 @@
 import { useEffect, useRef, useState } from "react";
-import { useThemeStore } from "../data-stores/theme.ts";
 import { useAuthStore } from "../data-stores/auth.ts";
 import { DarkModeButton } from "../components/DarkModeButton.tsx";
 import { Capacitor } from "@capacitor/core";
@@ -10,7 +9,6 @@ import { CameraPage } from "./camera/CameraPage.tsx";
 import { ProfilePage } from "./profile/ProfilePage.tsx";
 
 export const App = () => {
-	const { darkMode } = useThemeStore();
 	const { user } = useAuthStore();
 	const [isSideMenuOpen, setIsSideMenuOpen] = useState(false);
 	const [activeCameraMode, setActiveCameraMode] = useState(false);
@@ -27,9 +25,7 @@ export const App = () => {
 		}
 
 		if (isSideMenuOpen) document.addEventListener("mousedown", handleClickOutside);
-		return () => {
-			document.removeEventListener("mousedown", handleClickOutside);
-		};
+		return () => document.removeEventListener("mousedown", handleClickOutside);
 	}, [isSideMenuOpen]);
 
 	const toggleCameraMode = () => {
@@ -47,7 +43,7 @@ export const App = () => {
 	};
 
 	return (
-		<div className={`h-full w-full transition-all ${isMobile ? "mt-20" : ""}`}>
+		<div className={`h-full w-full colors-default transition-all ${isMobile ? "mt-20" : ""}`}>
 			<div className={`flex items-center justify-between px-4 py-3`}>
 				<button onClick={toggleSideMenu} className="text-2xl focus:outline-none">
 					☰
@@ -56,7 +52,7 @@ export const App = () => {
 				<DarkModeButton />
 			</div>
 
-			<div className="h-[calc(100vh-70px)] overflow-auto pb-20 hide-scrollbar">
+			<div className="h-[calc(100vh-70px)] overflow-auto pb-12 hide-scrollbar">
 				{activeCameraMode ? <CameraPage onClose={toggleCameraMode} /> : (
 					<>
 						<HomePage />
@@ -69,11 +65,11 @@ export const App = () => {
 				)}
 			</div>
 
-			<button onClick={toggleCameraMode} className={`fixed right-6 bottom-6 w-14 h-14 rounded-full ${activeCameraMode ? "bg-red-500" : "bg-primary"} text-white flex items-center justify-center shadow-lg z-20 transition-all`}>
+			<button onClick={toggleCameraMode} className={`fixed right-6 bottom-6 w-14 h-14 rounded-full flex items-center justify-center shadow-lg transition-all ${activeCameraMode ? "bg-red-500" : "bg-primary"}`}>
 				{activeCameraMode ? <span className="text-xl font-bold">✕</span> : <span>📷</span>}
 			</button>
 
-			<div className={`fixed inset-0 z-1 ${isSideMenuOpen ? "visible" : "invisible"} bg-black bg-opacity-40 transition-all duration-300 ${isSideMenuOpen ? "opacity-100" : "opacity-0"}`}>
+			<div className={`fixed inset-0 z-1 bg-black bg-opacity-40 transition-all duration-300 ${isSideMenuOpen ? "visible opacity-100" : "invisible opacity-0"}`}>
 				<div ref={sideMenuRef} className={`absolute top-0 left-0 bottom-0 w-3/4 max-w-xs colors-default shadow-lg transform transition-transform duration-300 ease-out hide-scrollbar ${isSideMenuOpen ? "translate-x-0" : "-translate-x-full"}`}>
 					<div className="p-4 border-b dark:border-gray-800 border-gray-200">
 						<div className="w-16 h-16 rounded-full bg-primary text-white flex items-center justify-center text-2xl font-bold mb-3">

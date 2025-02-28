@@ -1,5 +1,3 @@
-import { useThemeStore } from "../../../data-stores/theme.ts";
-
 type SettingItemProps = {
 	icon: string;
 	label: string;
@@ -11,18 +9,7 @@ type SettingItemProps = {
 	danger?: boolean;
 };
 
-export const SettingItem = ({
-	icon,
-	label,
-	value,
-	toggle,
-	isToggled,
-	onToggle,
-	onClick,
-	danger,
-}: SettingItemProps) => {
-	const { darkMode } = useThemeStore();
-
+export const SettingItem = ({ icon, label, value, toggle, isToggled, onToggle, onClick, danger }: SettingItemProps) => {
 	return (
 		<div className={`flex items-center justify-between p-3 mb-3 rounded-xl cursor-pointer bg-card border dark:border-gray-800 border-gray-100`} onClick={onClick || onToggle}>
 			<div className="flex items-center">
