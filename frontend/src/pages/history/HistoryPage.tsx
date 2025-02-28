@@ -18,11 +18,10 @@ export const HistoryPage = () => {
 			const entriesByDate = new Map<string, FoodEntry[]>();
 
 			allEntries.forEach((entry) => {
-				const entryDate = new Date(entry.createdAt);
-				const dateString = entryDate.toISOString().split("T")[0]!;
+				const mapKey = entry.createdAt.toLocaleDateString();
 
-				if (!entriesByDate.has(dateString)) entriesByDate.set(dateString, []);
-				entriesByDate.get(dateString)?.push(entry);
+				if (!entriesByDate.has(mapKey)) entriesByDate.set(mapKey, []);
+				entriesByDate.get(mapKey)?.push(entry);
 			});
 
 			const summaries: DaySummaryData[] = Array.from(entriesByDate, ([dateString, entries]) => ({
@@ -62,7 +61,7 @@ export const HistoryPage = () => {
 					</div>
 				)
 				: (
-					<div className={`p-6 rounded-2xl text-center ${darkMode ? "bg-primary-secondary" : "bg-gray-100"}`}>
+					<div className={`p-6 rounded-2xl text-center bg-card`}>
 						<p className="text-gray-500">No meal history available</p>
 						<p className="text-sm text-gray-400 mt-2">Use the camera to add your first meal</p>
 					</div>

@@ -33,7 +33,7 @@ export const DaySummary = (
 
 	return (
 		<div
-			className={`mb-4 rounded-2xl overflow-hidden border shadow-sm transition-all duration-300 ${darkMode ? "bg-primary-secondary border-gray-800" : "bg-white border-gray-100"}`}
+			className={`mb-4 rounded-2xl overflow-hidden border shadow-sm transition-all duration-300 bg-card dark:border-gray-800 border-gray-100`}
 			style={{ maxHeight: isExpanded ? "600px" : "80px" }}
 		>
 			<div
@@ -42,7 +42,7 @@ export const DaySummary = (
 			>
 				<div>
 					<h3 className="font-semibold text-sm whitespace-nowrap">{formattedDate}</h3>
-					<p className={`text-sm ${darkMode ? "text-gray-400" : "text-gray-600"}`}>
+					<p className={`text-sm dark:text-gray-400 text-gray-600`}>
 						{isOverGoal ? "Exceeded goal by" : "Under goal by"} {Math.abs(goalCalories - calories)} cal
 					</p>
 				</div>
@@ -50,7 +50,7 @@ export const DaySummary = (
 				<div className="flex items-center">
 					<div className="mr-3 text-right">
 						<p className="font-medium">{calories}</p>
-						<p className={`text-xs ${darkMode ? "text-gray-400" : "text-gray-500"}`}>
+						<p className={`text-xs dark:text-gray-400 text-gray-500`}>
 							calories
 						</p>
 					</div>
@@ -83,13 +83,13 @@ export const DaySummary = (
 			</div>
 
 			{isExpanded && (
-				<div className="p-4 border-t border-gray-200 dark:border-gray-700">
+				<div className="p-4 border-t dark:border-gray-700 border-gray-200">
 					<div className="flex justify-between mb-3">
-						<span className={`text-sm ${darkMode ? "text-gray-400" : "text-gray-500"}`}>Daily Goal</span>
+						<span className={`text-sm dark:text-gray-400 text-gray-500`}>Daily Goal</span>
 						<span className="font-medium">{goalCalories} cal</span>
 					</div>
 
-					<div className="h-2 bg-gray-200 dark:bg-gray-700 rounded-full mb-3">
+					<div className="h-2 dark:bg-gray-700 bg-gray-200 rounded-full mb-3">
 						<div
 							className={`h-2 rounded-full ${isOverGoal ? "bg-red-500" : "bg-green-500"}`}
 							style={{ width: `${Math.min(percentOfGoal, 100)}%` }}
@@ -113,7 +113,6 @@ export const DaySummary = (
 							? (
 								<div className="space-y-2">
 									{entries.map((entry, idx) => {
-										// Format time as "8:30 AM" from date
 										const entryTime = new Date(entry.createdAt);
 										const timeFormatted = entryTime.toLocaleTimeString("en-US", {
 											hour: "numeric",
@@ -124,8 +123,7 @@ export const DaySummary = (
 										return (
 											<div
 												key={idx}
-												className={`p-3 rounded-xl flex items-center justify-between 
-                      ${darkMode ? "bg-primary" : "bg-gray-100"}`}
+												className={`p-3 rounded-xl flex items-center justify-between dark:bg-dark bg-gray-100`}
 											>
 												<div className="flex items-center">
 													{entry.imageUrl && (
@@ -135,7 +133,7 @@ export const DaySummary = (
 													)}
 													<div>
 														<p className="font-medium">{entry.name}</p>
-														<p className={`text-xs ${darkMode ? "text-gray-400" : "text-gray-500"}`}>{timeFormatted}</p>
+														<p className={`text-xs dark:text-gray-400 text-gray-500`}>{timeFormatted}</p>
 													</div>
 												</div>
 												<div className="text-right">
@@ -147,7 +145,7 @@ export const DaySummary = (
 								</div>
 							)
 							: (
-								<div className={`p-3 rounded-xl ${darkMode ? "bg-primary" : "bg-gray-100"}`}>
+								<div className={`p-3 rounded-xl dark:bg-dark bg-gray-100`}>
 									<p className="text-center text-sm text-gray-500">No meal data available for this day</p>
 								</div>
 							)}

@@ -50,10 +50,10 @@ export const HomePage = () => {
 
 	return (
 		<div className="px-5 pt-4">
-			<div className={`rounded-3xl p-6 mb-8 ${darkMode ? "bg-primary-secondary" : "bg-white"} shadow-sm border ${darkMode ? "border-gray-800" : "border-gray-100"}`}>
+			<div className={`rounded-3xl p-6 mb-8 bg-card shadow-sm border dark:border-gray-800 border-gray-100`}>
 				<div className="flex items-center justify-between mb-3">
 					<h3 className="text-xl font-semibold">Today's Progress</h3>
-					<span className={`text-sm ${darkMode ? "text-gray-400" : "text-gray-500"}`}>
+					<span className={`text-sm dark:text-gray-400 text-gray-500`}>
 						{percentCalories.toFixed(0)}% of goal
 					</span>
 				</div>
@@ -75,7 +75,7 @@ export const HomePage = () => {
 
 					<div className="flex-1">
 						<div className="flex justify-between mb-2">
-							<span className={`text-sm ${darkMode ? "text-gray-400" : "text-gray-500"}`}>
+							<span className={`text-sm dark:text-gray-400 text-gray-500`}>
 								Daily Goal
 							</span>
 							<span className="font-medium">{dailyGoal} cal</span>
@@ -90,7 +90,7 @@ export const HomePage = () => {
 						</div>
 
 						<div className="flex justify-between">
-							<span className={`text-sm ${darkMode ? "text-gray-400" : "text-gray-500"}`}>
+							<span className={`text-sm dark:text-gray-400 text-gray-500`}>
 								{remainingCalories > 0 ? "Remaining" : "Exceeded by"}
 							</span>
 							<span className={`font-medium ${remainingCalories < 0 ? "text-red-500" : ""}`}>
@@ -124,7 +124,7 @@ export const HomePage = () => {
 					</div>
 				)
 				: (
-					<div className={`p-8 rounded-2xl text-center ${darkMode ? "bg-primary-secondary" : "bg-gray-100"}`}>
+					<div className={`p-8 rounded-2xl text-center bg-card`}>
 						<p className="text-gray-500">No meals recorded for this day</p>
 						<p className="text-sm text-gray-400 mt-2">Use the camera to add your meals</p>
 					</div>

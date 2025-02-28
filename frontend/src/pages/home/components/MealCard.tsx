@@ -11,7 +11,7 @@ export const MealCard = ({ title, calories, time, imageUrl }: MealCardProps) => 
 	const { darkMode } = useThemeStore();
 
 	return (
-		<div className={`flex items-center p-4 mb-3 rounded-2xl shadow-sm border ${darkMode ? "bg-primary-secondary" : "bg-white"} ${darkMode ? "border-gray-800" : "border-gray-100"}`}>
+		<div className={`flex items-center p-4 mb-3 rounded-2xl shadow-sm border bg-card dark:border-gray-800 border-gray-100`}>
 			{imageUrl && (
 				<div className="w-16 h-16 mr-4 rounded-xl overflow-hidden">
 					<img src={imageUrl} alt={title} className="w-full h-full object-cover" />
@@ -19,11 +19,11 @@ export const MealCard = ({ title, calories, time, imageUrl }: MealCardProps) => 
 			)}
 			<div className="flex-1">
 				<h3 className="font-medium text-lg">{title}</h3>
-				<p className={`text-sm ${darkMode ? "text-gray-400" : "text-gray-500"}`}>{time}</p>
+				<p className={`text-sm dark:text-gray-400 text-gray-500`}>{time}</p>
 			</div>
 			<div className="text-right">
 				<p className="text-lg font-medium">{calories}</p>
-				<p className={`text-xs ${darkMode ? "text-gray-400" : "text-gray-500"}`}>calories</p>
+				<p className={`text-xs dark:text-gray-400 text-gray-500`}>calories</p>
 			</div>
 		</div>
 	);

@@ -220,7 +220,7 @@ export const CameraPage = ({ onClose }: CameraPageProps = {}) => {
 							: analysis
 							? (
 								<div
-									className={`rounded-3xl p-6 ${darkMode ? "bg-primary-secondary" : "bg-white"} shadow-sm border ${darkMode ? "border-gray-800" : "border-gray-100"}`}
+									className={`rounded-3xl p-6 dark:bg-card bg-white shadow-sm border dark:border-gray-800 border-gray-100`}
 								>
 									<h2 className="text-xl font-bold mb-2">{analysis.name}</h2>
 									<div className="flex items-center justify-between mb-4">
@@ -228,7 +228,7 @@ export const CameraPage = ({ onClose }: CameraPageProps = {}) => {
 										<button
 											onClick={saveAnalysis}
 											disabled={isSaving}
-											className={`px-5 py-2 bg-appBlue text-white rounded-full shadow-sm ${isSaving ? "opacity-70" : ""}`}
+											className={`px-5 py-2 bg-primary text-white rounded-full shadow-sm ${isSaving ? "opacity-70" : ""}`}
 										>
 											{isSaving ? "Saving..." : "Save Entry"}
 										</button>
@@ -247,7 +247,7 @@ export const CameraPage = ({ onClose }: CameraPageProps = {}) => {
 												</div>
 												<div className="text-right">
 													<span className="font-medium">{ingredient.calories} cal</span>
-													<span className={`ml-2 text-sm ${darkMode ? "text-gray-400" : "text-gray-500"}`}>
+													<span className={`ml-2 text-sm dark:text-gray-400 text-gray-500`}>
 														({ingredient.percentage}%)
 													</span>
 												</div>
@@ -260,13 +260,13 @@ export const CameraPage = ({ onClose }: CameraPageProps = {}) => {
 								<div className="flex justify-between">
 									<button
 										onClick={resetPhoto}
-										className={`px-5 py-2 rounded-full ${darkMode ? "bg-primary-secondary" : "bg-gray-200"}`}
+										className={`px-5 py-2 rounded-full dark:bg-card bg-gray-200`}
 									>
 										Retake
 									</button>
 									<button
 										onClick={analyzePhoto}
-										className="px-5 py-2 bg-appBlue text-white rounded-full shadow-sm"
+										className="px-5 py-2 bg-primary text-white rounded-full shadow-sm"
 									>
 										Analyze Food
 									</button>
@@ -276,7 +276,7 @@ export const CameraPage = ({ onClose }: CameraPageProps = {}) => {
 				)
 				: (
 					<div className="flex flex-col items-center justify-center h-[calc(100vh-200px)]">
-						<div className={`p-16 rounded-3xl mb-6 ${darkMode ? "bg-primary-secondary" : "bg-gray-100"}`}>
+						<div className={`p-16 rounded-3xl mb-6 dark:bg-card bg-gray-100`}>
 							<span className="text-5xl">📷</span>
 						</div>
 						<p className="text-center text-gray-500 mb-8">
@@ -284,7 +284,7 @@ export const CameraPage = ({ onClose }: CameraPageProps = {}) => {
 						</p>
 						<button
 							onClick={camera.open}
-							className="px-8 py-3 bg-appBlue text-white rounded-full shadow-md"
+							className="px-8 py-3 bg-primary text-white rounded-full shadow-md"
 						>
 							Open Camera
 						</button>

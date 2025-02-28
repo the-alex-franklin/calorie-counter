@@ -65,7 +65,7 @@ export const ProfilePage = () => {
 
 			{showGoalModal && (
 				<div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-					<div className={`w-5/6 p-6 rounded-2xl shadow-lg ${darkMode ? "bg-primary" : "bg-white"}`}>
+					<div className={`w-5/6 p-6 rounded-2xl shadow-lg bg-primary`}>
 						<h3 className="text-lg font-semibold mb-4">Set Daily Calorie Goal</h3>
 
 						<div className="space-y-4 mb-5">
@@ -73,7 +73,7 @@ export const ProfilePage = () => {
 								<div
 									key={goal}
 									onClick={() => handleGoalChange(goal)}
-									className={`p-3 rounded-xl border flex items-center justify-between cursor-pointer ${dailyGoal === goal ? "border-primary bg-appBlue bg-opacity-10" : darkMode ? "border-gray-700" : "border-gray-200"}`}
+									className={`p-3 rounded-xl border flex items-center justify-between cursor-pointer ${dailyGoal === goal ? "border-primary bg-primary bg-opacity-10" : "dark:border-gray-700 border-gray-200"}`}
 								>
 									<span>{goal} calories</span>
 									{dailyGoal === goal && <span className="text-primary">✓</span>}
