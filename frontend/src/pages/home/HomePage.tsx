@@ -35,9 +35,11 @@ export const HomePage = () => {
 
 			const totalCalories = entries.reduce((sum, entry) => sum + entry.calories, 0);
 			setCalories(totalCalories);
-		}).catch(() => {
-			setMealEntries([]);
-			setCalories(0);
+		}).then((result) => {
+			if (result.failure) {
+				setMealEntries([]);
+				setCalories(0);
+			}
 		});
 	}, []);
 

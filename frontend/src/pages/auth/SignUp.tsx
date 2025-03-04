@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import { FormInput } from "./components/FormInput.tsx";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuthStore } from "../../data-stores/auth.ts";
-import { Try } from "fp-try";
 
 export const SignUp = () => {
 	const { signup } = useAuthStore();
@@ -18,8 +17,8 @@ export const SignUp = () => {
 		setIsLoading(true);
 		setError(null);
 
-		Try(() => signup(email, password))
-			.catch((err: Error) => setError(err.message))
+		signup(email, password)
+			.catch((err) => setError(err.message))
 			.finally(() => setIsLoading(false));
 	};
 

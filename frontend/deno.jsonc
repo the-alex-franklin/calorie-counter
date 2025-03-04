@@ -16,7 +16,7 @@
 	},
 	"nodeModulesDir": "auto",
 	"imports": {
-		"fp-try": "jsr:@2or3godzillas/fp-try@^1.2.0",
+		"fp-try": "jsr:@2or3godzillas/fp-try@^1.4.0",
 		"@capacitor/core": "npm:@capacitor/core@^7.0.1",
 		"@capacitor/camera": "npm:@capacitor/camera@^7.0.0",
 		"@deno/vite-plugin": "npm:@deno/vite-plugin@^1.0.0",

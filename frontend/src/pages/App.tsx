@@ -43,7 +43,7 @@ export const App = () => {
 	};
 
 	return (
-		<div className={`h-full w-full colors-default transition-all ${isMobile ? "mt-20" : ""}`}>
+		<div className={`h-full w-full colors-default transition-all duration-300 ${isMobile ? "mt-20" : ""}`}>
 			<div className={`flex items-center justify-between px-4 py-3`}>
 				<button onClick={toggleSideMenu} className="text-2xl focus:outline-none">
 					☰
@@ -70,7 +70,7 @@ export const App = () => {
 			</button>
 
 			<div className={`fixed inset-0 z-1 bg-black bg-opacity-40 transition-all duration-300 ${isSideMenuOpen ? "visible opacity-100" : "invisible opacity-0"}`}>
-				<div ref={sideMenuRef} className={`absolute top-0 left-0 bottom-0 w-3/4 max-w-xs colors-default shadow-lg transform transition-transform duration-300 ease-out hide-scrollbar ${isSideMenuOpen ? "translate-x-0" : "-translate-x-full"}`}>
+				<div ref={sideMenuRef} className={`absolute top-0 left-0 bottom-0 w-3/4 max-w-xs colors-default shadow-lg transform transition-transform duration-300 ease-in-out hide-scrollbar ${isSideMenuOpen ? "translate-x-0" : "-translate-x-full"}`}>
 					<div className="p-4 border-b dark:border-gray-800 border-gray-200">
 						<div className="w-16 h-16 rounded-full bg-primary text-white flex items-center justify-center text-2xl font-bold mb-3">
 							{user?.email?.charAt(0).toUpperCase()}

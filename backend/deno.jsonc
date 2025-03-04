@@ -11,7 +11,7 @@
 	},
 	"nodeModulesDir": "auto",
 	"imports": {
-		"fp-try": "jsr:@2or3godzillas/fp-try",
+		"fp-try": "jsr:@2or3godzillas/fp-try@^1.4.0",
 		"hono": "npm:hono",
 		"zod": "npm:zod",
 		"axios": "npm:axios",

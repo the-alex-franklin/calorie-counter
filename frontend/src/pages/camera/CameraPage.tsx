@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Capacitor } from "@capacitor/core";
 import { Camera, CameraResultType } from "@capacitor/camera";
-import { Try } from "jsr:@2or3godzillas/fp-try";
+import { Try } from "fp-try";
 import { type FoodAnalysis, foodAnalysisSchema, foodApi } from "../../data-stores/api.ts";
 import { useNavigate } from "react-router-dom";
 
@@ -76,7 +76,9 @@ export const CameraPage = ({ onClose }: CameraPageProps = {}) => {
 					setPhoto(canvas.toDataURL("image/jpeg", 0.9));
 					stopAllVideoStreams();
 					setIsCameraOpen(false);
-				}).catch(() => setError("Failed to capture photo. Please try again."));
+				}).then((result) => {
+					if (result.failure) setError("Failed to capture photo. Please try again.");
+				});
 			},
 		},
 	};
@@ -97,8 +99,8 @@ export const CameraPage = ({ onClose }: CameraPageProps = {}) => {
 			const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
 			videoRef.current.srcObject = stream;
 			videoRef.current.play();
-		}).catch(() => {
-			setError("Unable to access webcam. Please check permissions.");
+		}).then((result) => {
+			if (result.failure) setError("Unable to access webcam. Please check permissions.");
 		});
 
 		return () => {
@@ -126,7 +128,8 @@ export const CameraPage = ({ onClose }: CameraPageProps = {}) => {
 		if (!photo) return;
 
 		setIsAnalyzing(true);
-		setAnalysis(await foodApi.analyzeImage(photo));
+		const analysis = await foodApi.analyzeImage(photo);
+		setAnalysis(analysis);
 		setIsAnalyzing(false);
 	};
 
@@ -135,17 +138,17 @@ export const CameraPage = ({ onClose }: CameraPageProps = {}) => {
 
 		setIsSaving(true);
 
-		await Try(async () => {
+		Try(async () => {
 			const parsedAnalysis = foodAnalysisSchema.parse(analysis);
 
 			await foodApi.saveFoodEntry({
 				...parsedAnalysis,
 				imageUrl: photo || undefined,
 			});
+		}).then(() => {
+			handleClose();
+			setIsSaving(false);
 		});
-
-		handleClose();
-		setIsSaving(false);
 	};
 
 	return (

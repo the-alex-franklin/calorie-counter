@@ -1,13 +1,19 @@
-import { useLayoutEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { foodApi, type FoodEntry } from "../../data-stores/api.ts";
-import { DaySummary, type DaySummaryData } from "./components/DaySummary.tsx";
+import { DaySummary } from "./components/DaySummary.tsx";
 import { Try } from "fp-try";
+
+type DaySummaryData = {
+	date: string;
+	calories: number;
+	entries: FoodEntry[];
+};
 
 export const HistoryPage = () => {
 	const [daysData, setDaysData] = useState<DaySummaryData[]>([]);
 	const [expandedDay, setExpandedDay] = useState<string | null>(null);
 
-	useLayoutEffect(() => {
+	useEffect(() => {
 		Try(async () => {
 			const allEntries = await foodApi.getPreviousFoodEntries();
 			const entriesByDate = new Map<string, FoodEntry[]>();

@@ -1,8 +1,7 @@
 {
   "version": "4",
   "specifiers": {
-    "jsr:@2or3godzillas/fp-try@*": "1.2.0",
-    "jsr:@2or3godzillas/fp-try@^1.2.0": "1.2.0",
+    "jsr:@2or3godzillas/fp-try@^1.4.0": "1.4.0",
     "npm:@bistroo/vite-plugin-capacitor@*": "3.0.0_@capacitor+cli@6.2.0_vite@5.4.14__@types+node@22.5.4_@types+node@22.5.4",
     "npm:@capacitor/camera@*": "7.0.0_@capacitor+core@7.0.1",
     "npm:@capacitor/camera@7": "7.0.0_@capacitor+core@7.0.1",
@@ -41,8 +40,8 @@
     "npm:zustand@*": "5.0.3_@types+react@18.3.18_react@18.3.1"
   },
   "jsr": {
-    "@2or3godzillas/fp-try@1.2.0": {
-      "integrity": "79dc3ccd1cb80a1d9313bb320b286d77daa872f673d1a3b2b0b0227df5afe84d"
+    "@2or3godzillas/fp-try@1.4.0": {
+      "integrity": "ee205f08b26fdb4bf9ede723ab1bf036907ac8002f6c7d000b344ca91847dd75"
     }
   },
   "npm": {
@@ -2490,7 +2489,7 @@
   },
   "workspace": {
     "dependencies": [
-      "jsr:@2or3godzillas/fp-try@^1.2.0",
+      "jsr:@2or3godzillas/fp-try@^1.4.0",
       "npm:@capacitor/camera@7",
       "npm:@capacitor/core@^7.0.1",
       "npm:@deno/vite-plugin@1",

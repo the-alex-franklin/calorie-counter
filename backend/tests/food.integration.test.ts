@@ -1,6 +1,5 @@
 import { z } from "zod";
 import { setupTests } from "./utils/setupTests.ts";
-import { perf } from "./utils/perf.ts";
 import { foodIngredientSchema } from "../src/db/FoodEntryService.ts";
 import chalk from "chalk";
 
@@ -32,7 +31,7 @@ Deno.test("food entry service", async (t) => {
 	});
 
 	await t.step("unauthorized access to food entries", async () => {
-		const response = await perf("unauthorized", () => app.request("/api/food-entries"));
+		const response = await app.request("/api/food-entries");
 
 		const data = await response.json();
 
@@ -70,14 +69,13 @@ Deno.test("food entry service", async (t) => {
 			imageUrl: "https://example.com/test-salad.jpg",
 		};
 
-		const response = await perf("create food entry", () =>
-			app.request("/api/food-entries", {
-				method: "POST",
-				headers: {
-					Authorization: `Bearer ${accessToken}`,
-				},
-				body: JSON.stringify(testFoodEntry),
-			}));
+		const response = await app.request("/api/food-entries", {
+			method: "POST",
+			headers: {
+				Authorization: `Bearer ${accessToken}`,
+			},
+			body: JSON.stringify(testFoodEntry),
+		});
 
 		const data = await response.json();
 
@@ -97,12 +95,11 @@ Deno.test("food entry service", async (t) => {
 	});
 
 	await t.step("get all food entries", async () => {
-		const response = await perf("get food entries", () =>
-			app.request("/api/todays-food-entries", {
-				headers: {
-					Authorization: `Bearer ${accessToken}`,
-				},
-			}));
+		const response = await app.request("/api/todays-food-entries", {
+			headers: {
+				Authorization: `Bearer ${accessToken}`,
+			},
+		});
 
 		const data = await response.json();
 
@@ -153,14 +150,13 @@ Deno.test("food entry service", async (t) => {
 			],
 		};
 
-		const response = await perf("create second food entry", () =>
-			app.request("/api/food-entries", {
-				method: "POST",
-				headers: {
-					Authorization: `Bearer ${accessToken}`,
-				},
-				body: JSON.stringify(testFoodEntry),
-			}));
+		const response = await app.request("/api/food-entries", {
+			method: "POST",
+			headers: {
+				Authorization: `Bearer ${accessToken}`,
+			},
+			body: JSON.stringify(testFoodEntry),
+		});
 
 		const data = await response.json();
 
@@ -183,14 +179,13 @@ Deno.test("food entry service", async (t) => {
 			ingredients: "not an array",
 		};
 
-		const response = await perf("invalid food entry", () =>
-			app.request("/api/food-entries", {
-				method: "POST",
-				headers: {
-					Authorization: `Bearer ${accessToken}`,
-				},
-				body: JSON.stringify(invalidFoodEntry),
-			}));
+		const response = await app.request("/api/food-entries", {
+			method: "POST",
+			headers: {
+				Authorization: `Bearer ${accessToken}`,
+			},
+			body: JSON.stringify(invalidFoodEntry),
+		});
 
 		z.object({
 			status: z.number().gte(400),
@@ -198,9 +193,8 @@ Deno.test("food entry service", async (t) => {
 		}).parse(response);
 
 		const data = await response.json();
-		z.object({
-			error: z.string(),
-		}).parse(data);
+
+		z.object({ error: z.string() }).parse(data);
 	});
 
 	await t.step("analyze food image", async () => {
@@ -211,20 +205,17 @@ Deno.test("food entry service", async (t) => {
 			new Uint8Array(imageBuffer).reduce((data, byte) => data + String.fromCharCode(byte), ""),
 		);
 
-		const response = await perf("analyze food image", () =>
-			app.request("/api/analyze", {
-				method: "POST",
-				headers: {
-					Authorization: `Bearer ${accessToken}`,
-				},
-				body: JSON.stringify({
-					image: base64Image,
-				}),
-			}));
+		const response = await app.request("/api/analyze", {
+			method: "POST",
+			headers: {
+				Authorization: `Bearer ${accessToken}`,
+			},
+			body: JSON.stringify({
+				image: base64Image,
+			}),
+		});
 
-		z.object({
-			status: z.number().lte(299),
-		}).parse(response);
+		z.object({ status: z.number().int().gte(200).lt(300) }).parse(response);
 
 		const data = await response.json();
 
@@ -244,16 +235,15 @@ Deno.test("food entry service", async (t) => {
 			new Uint8Array(imageBuffer).reduce((data, byte) => data + String.fromCharCode(byte), ""),
 		);
 
-		const response = await perf("analyze non-food image", () =>
-			app.request("/api/analyze", {
-				method: "POST",
-				headers: {
-					Authorization: `Bearer ${accessToken}`,
-				},
-				body: JSON.stringify({
-					image: mockBase64Image,
-				}),
-			}));
+		const response = await app.request("/api/analyze", {
+			method: "POST",
+			headers: {
+				Authorization: `Bearer ${accessToken}`,
+			},
+			body: JSON.stringify({
+				image: mockBase64Image,
+			}),
+		});
 
 		const data = await response.json();
 

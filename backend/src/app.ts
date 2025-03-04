@@ -7,17 +7,22 @@ import { FoodEntryService } from "./db/FoodEntryService.ts";
 import { type Db, MongoClient } from "mongodb";
 import { PlatformError } from "./errors/platform.error.ts";
 import { foodRoutes } from "./food/food.routes.ts";
+import chalk from "chalk";
 
 export function createApp({ db }: { db: Db }) {
-	let app: Hono | Hono<JWTPayload> = new Hono();
 	const userService = UserService.getInstance(db);
 	const foodEntryService = FoodEntryService.getInstance(db);
+
+	let app: Hono | Hono<JWTPayload> = new Hono();
 
 	app.use(cors({ origin: "*" }));
 
 	app.use(async (c, next) => {
 		console.log(`Method: ${c.req.method}, Route: ${c.req.url}`);
+		const start = performance.now();
 		await next();
+		const end = performance.now();
+		console.log(`Time: ${chalk.yellow(end - start + "ms")}`);
 	});
 
 	app.onError((err, c) => (

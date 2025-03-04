@@ -1,10 +1,10 @@
 import { env } from "../env.ts";
 import { PlatformError } from "../errors/platform.error.ts";
-import { type FoodEntryBase, foodEntryBaseSchema } from "../db/FoodEntryService.ts";
+import { type FoodEntryWrite, foodEntryWriteSchema } from "../db/FoodEntryService.ts";
 import { z } from "zod";
 import { Try } from "fp-try";
 
-export async function analyzeImage(image: string): Promise<FoodEntryBase> {
+export async function analyzeImage(image: string): Promise<FoodEntryWrite> {
 	const base64Data = image.replace(/^data:image\/(png|jpeg|jpg);base64,/, "");
 
 	const response = await fetch("https://api.anthropic.com/v1/messages", {
@@ -36,7 +36,7 @@ export async function analyzeImage(image: string): Promise<FoodEntryBase> {
 							type: "image",
 							source: {
 								type: "base64",
-								media_type: "image/jpeg", // We're standardizing on JPEG format
+								media_type: "image/jpeg",
 								data: base64Data,
 							},
 						},
@@ -46,11 +46,12 @@ export async function analyzeImage(image: string): Promise<FoodEntryBase> {
 		}),
 	});
 
-	if (!response.ok) throw new PlatformError("Failed to analyze image with Claude", 500);
+	if (!response.ok) throw new PlatformError("Failed to analyze image", 500);
 
 	const json = await response.json();
 
-	const parseResult = Try(() => foodEntryBaseSchema.parse(JSON.parse(json.content[0]?.text)));
+	const parseResult = Try(() => foodEntryWriteSchema.parse(JSON.parse(json.content[0]?.text)));
 	if (parseResult.success) return parseResult.data;
+
 	throw new PlatformError("No Food Detected", 400);
 }
